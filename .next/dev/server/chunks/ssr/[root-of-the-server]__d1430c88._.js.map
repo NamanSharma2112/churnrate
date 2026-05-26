@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/91987/OneDrive/Desktop/churn-rate/compoents/dasboard/Dasboard.tsx"],"sourcesContent":["import React from 'react'\r\n\r\nconst Dasboard = () => {\r\n  return (\r\n    <div>\r\n      dasboard\r\n    </div>\r\n  )\r\n}\r\n\r\nexport default Dasboard\r\n"],"names":[],"mappings":";;;;;;AAEA,MAAM,WAAW;IACf,qBACE,sRAAC;kBAAI;;;;;;AAIT;uCAEe"}},
+    {"offset": {"line": 34, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/91987/OneDrive/Desktop/churn-rate/app/page.tsx"],"sourcesContent":["import Image from \"next/image\";\nimport { Inter } from \"next/font/google\";\nimport Dasboard from \"../compoents/dasboard/Dasboard.tsx\";\nexport default function Home() {\n  return (\n    <div className=\"flex min-h-screen items-center justify-center \">\n    <Sidebar />\n     <Dasboard />\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;AAEA;;;AACe,SAAS;IACtB,qBACE,sRAAC;QAAI,WAAU;;0BACf,sRAAC;;;;;0BACA,sRAAC,qLAAQ;;;;;;;;;;;AAGd"}}]
+}
