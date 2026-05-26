@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  plan      String   @default("free")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users     User[]
+  customers Customer[]
+
+  @@map("tenants")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         String   @default("viewer")
+  tenantId     String   @map("tenant_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("users")
+}
+
+model Customer {
+  id              String   @id @default(uuid())
+  externalId      String?  @map("external_id")
+  name            String
+  email           String
+  company         String?
+  plan            String   @default("free")
+  mrr             Float    @default(0)
+  healthScore     Float    @default(50) @map("health_score")
+  churnRisk       Float    @default(0) @map("churn_risk")
+  riskLevel       String   @default("low") @map("risk_level")
+  engagementTrend String   @default("stable") @map("engagement_trend")
+  lastActiveAt    DateTime @default(now()) @map("last_active_at")
+  signupDate      DateTime @default(now()) @map("signup_date")
+  tenantId        String   @map("tenant_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  predictions Prediction[]
+  events      Event[]
+
+  @@unique([email, tenantId])
+  @@map("customers")
+}
+
+model Prediction {
+  id           String   @id @default(uuid())
+  customerId   String   @map("customer_id")
+  probability  Float
+  riskLevel    String   @map("risk_level")
+  topFactors   Json     @default("[]") @map("top_factors")
+  modelVersion String?  @map("model_version")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("predictions")
+}
+
+model Event {
+  id         String   @id @default(uuid())
+  type       String
+  message    String
+  customerId String?  @map("customer_id")
+  tenantId   String   @map("tenant_id")
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@map("events")
+}
+
+model ChurnMetric {
+  id             String   @id @default(uuid())
+  tenantId       String   @map("tenant_id")
+  month          String
+  churnRate      Float    @map("churn_rate")
+  predictedRate  Float?   @map("predicted_rate")
+  totalCustomers Int      @map("total_customers")
+  churnedCount   Int      @map("churned_count")
+  mrr            Float    @default(0)
+  churnedRevenue Float    @default(0) @map("churned_revenue")
+  newRevenue     Float    @default(0) @map("new_revenue")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([tenantId, month])
+  @@map("churn_metrics")
+}
+
+model JobLog {
+  id        String   @id @default(uuid())
+  jobId     String   @map("job_id")
+  type      String
+  status    String   @default("pending")
+  result    Json?
+  error     String?
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("job_logs")
+}
