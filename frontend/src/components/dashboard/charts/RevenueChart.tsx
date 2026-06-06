@@ -13,7 +13,7 @@ import { revenueData } from "@/lib/mock-data";
 
 export function RevenueChart() {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm h-full flex flex-col">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-neutral-800">
@@ -24,8 +24,9 @@ export function RevenueChart() {
           </p>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={360}>
-        <AreaChart data={revenueData}>
+      <div className="flex-1 min-h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={revenueData}>
           <defs>
             <linearGradient id="mrrGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
@@ -84,8 +85,9 @@ export function RevenueChart() {
             strokeDasharray="5 5"
             name="Churned Revenue"
           />
-        </AreaChart>
-      </ResponsiveContainer>
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

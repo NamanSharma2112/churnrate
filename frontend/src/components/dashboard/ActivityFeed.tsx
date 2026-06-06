@@ -22,14 +22,14 @@ export function ActivityFeed() {
   const { activity } = useDashboardStore();
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm h-full flex flex-col">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-neutral-800">
           Recent Activity
         </h3>
         <p className="text-xs text-neutral-500">Latest customer events</p>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 flex-1 flex flex-col justify-between">
         {activity.map((event) => {
           const { icon: Icon, color } = iconMap[event.type];
           return (
