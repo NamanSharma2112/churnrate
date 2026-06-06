@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
+import { Sidebar } from "@/components/sidebar/Sidebar";
+import { CommandPalette } from "@/components/CommandPalette";
 import "./globals.css";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "ChurnRate - Customer Churn Prediction",
@@ -13,9 +19,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="bg-stone-950 text-stone-100 antialiased">
-        {children}
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
+      <body className="bg-background text-foreground antialiased flex h-screen overflow-hidden">
+        <Sidebar />
+        <CommandPalette />
+        <div className="flex-1 overflow-y-auto">
+          {children}
+        </div>
       </body>
     </html>
   );

@@ -11,12 +11,12 @@ import { riskDistribution } from "@/lib/mock-data";
 
 export function RiskDistributionChart() {
   return (
-    <div className="rounded-xl border border-stone-800 bg-stone-900 p-5">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-stone-200">
+        <h3 className="text-sm font-semibold text-neutral-800">
           Risk Distribution
         </h3>
-        <p className="text-xs text-stone-500">
+        <p className="text-xs text-neutral-500">
           Customer segmentation by churn risk level
         </p>
       </div>
@@ -38,10 +38,11 @@ export function RiskDistributionChart() {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1c1917",
-                border: "1px solid #292524",
+                backgroundColor: "#ffffff",
+                border: "1px solid #e5e5e5",
                 borderRadius: "8px",
                 fontSize: "12px",
+                color: "#262626"
               }}
               formatter={(value: number) => [value.toLocaleString(), "Customers"]}
             />
@@ -55,13 +56,13 @@ export function RiskDistributionChart() {
                   className="h-3 w-3 rounded-full"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-sm text-stone-400">{item.level}</span>
+                <span className="text-sm text-neutral-500">{item.level}</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-medium text-stone-200">
+                <span className="text-sm font-medium text-neutral-800">
                   {item.count.toLocaleString()}
                 </span>
-                <span className="ml-2 text-xs text-stone-500">
+                <span className="ml-2 text-xs text-neutral-500">
                   {item.percentage}%
                 </span>
               </div>

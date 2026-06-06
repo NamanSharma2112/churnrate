@@ -13,18 +13,18 @@ import { revenueData } from "@/lib/mock-data";
 
 export function RevenueChart() {
   return (
-    <div className="rounded-xl border border-stone-800 bg-stone-900 p-5">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-stone-200">
+          <h3 className="text-sm font-semibold text-neutral-800">
             Revenue Impact
           </h3>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-neutral-500">
             MRR, churned revenue, and new revenue over time
           </p>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer width="100%" height={360}>
         <AreaChart data={revenueData}>
           <defs>
             <linearGradient id="mrrGradient" x1="0" y1="0" x2="0" y2="1">
@@ -36,25 +36,26 @@ export function RevenueChart() {
               <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#292524" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
           <XAxis
             dataKey="month"
-            stroke="#78716c"
+            stroke="#a3a3a3"
             fontSize={11}
             tickLine={false}
           />
           <YAxis
-            stroke="#78716c"
+            stroke="#a3a3a3"
             fontSize={11}
             tickLine={false}
             tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1c1917",
-              border: "1px solid #292524",
+              backgroundColor: "#ffffff",
+              border: "1px solid #e5e5e5",
               borderRadius: "8px",
               fontSize: "12px",
+              color: "#262626",
             }}
             formatter={(value: number) => [`$${value.toLocaleString()}`]}
           />

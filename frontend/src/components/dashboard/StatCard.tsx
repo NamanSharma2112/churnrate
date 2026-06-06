@@ -1,13 +1,12 @@
 "use client";
 
-import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
-import type { IconType } from "react-icons";
+import { ArrowUp01Icon, ArrowDown01Icon } from "hugeicons-react";
 
 interface StatCardProps {
   title: string;
   value: string;
   change: number;
-  icon: IconType;
+  icon: React.ElementType;
   iconColor: string;
   prefix?: string;
   suffix?: string;
@@ -25,9 +24,9 @@ export function StatCard({
   const isGood = title === "Churn Rate" ? !isPositive : isPositive;
 
   return (
-    <div className="rounded-xl border border-stone-800 bg-stone-900 p-4 transition-colors hover:border-stone-700">
+    <div className="rounded-xl border border-neutral-200 bg-white p-4 transition-colors hover:border-neutral-300 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-stone-500">
+        <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">
           {title}
         </span>
         <div
@@ -38,23 +37,23 @@ export function StatCard({
         </div>
       </div>
       <div className="flex items-end justify-between">
-        <p className="text-2xl font-bold text-stone-100">
+        <p className="text-2xl font-bold text-neutral-800">
           {value}
           {suffix && (
-            <span className="ml-1 text-sm font-normal text-stone-500">
+            <span className="ml-1 text-sm font-normal text-neutral-500">
               {suffix}
             </span>
           )}
         </p>
         <div
           className={`flex items-center gap-1 text-xs font-medium ${
-            isGood ? "text-emerald-400" : "text-red-400"
+            isGood ? "text-emerald-500" : "text-red-500"
           }`}
         >
           {isPositive ? (
-            <FiTrendingUp size={12} />
+            <ArrowUp01Icon size={14} />
           ) : (
-            <FiTrendingDown size={12} />
+            <ArrowDown01Icon size={14} />
           )}
           {Math.abs(change)}%
         </div>

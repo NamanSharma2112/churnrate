@@ -1,49 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-  FiHome,
-  FiUsers,
-  FiTrendingUp,
-  FiBarChart2,
-  FiSettings,
-  FiUpload,
-  FiCpu,
-  FiAlertTriangle,
-} from "react-icons/fi";
+  Home01Icon,
+  UserGroupIcon,
+  ChartLineData01Icon,
+  DocumentValidationIcon,
+  Settings01Icon,
+  CloudUploadIcon,
+  CpuSettingsIcon,
+  Alert01Icon,
+} from "hugeicons-react";
 
 const routes = [
-  { icon: FiHome, label: "Dashboard", path: "/" },
-  { icon: FiUsers, label: "Customers", path: "/customers" },
-  { icon: FiTrendingUp, label: "Churn Analysis", path: "/analysis" },
-  { icon: FiBarChart2, label: "Reports", path: "/reports" },
-  { icon: FiAlertTriangle, label: "At-Risk", path: "/at-risk" },
-  { icon: FiCpu, label: "ML Models", path: "/models" },
-  { icon: FiUpload, label: "Data Import", path: "/import" },
-  { icon: FiSettings, label: "Settings", path: "/settings" },
+  { icon: Home01Icon, label: "Dashboard", path: "/" },
+  { icon: UserGroupIcon, label: "Customers", path: "/customers" },
+  { icon: ChartLineData01Icon, label: "Churn Analysis", path: "/analysis" },
+  { icon: DocumentValidationIcon, label: "Reports", path: "/reports" },
+  { icon: Alert01Icon, label: "At-Risk", path: "/at-risk" },
+  { icon: CpuSettingsIcon, label: "ML Models", path: "/models" },
+  { icon: CloudUploadIcon, label: "Data Import", path: "/import" },
+  { icon: Settings01Icon, label: "Settings", path: "/settings" },
 ];
 
 export function RouteSelect() {
-  const [selected, setSelected] = useState("/");
+  const pathname = usePathname();
 
   return (
     <nav className="flex-1 space-y-1">
       {routes.map((route) => {
         const Icon = route.icon;
-        const isActive = selected === route.path;
+        const isActive = pathname === route.path || (route.path !== "/" && pathname?.startsWith(route.path));
         return (
-          <button
+          <Link
             key={route.path}
-            onClick={() => setSelected(route.path)}
+            href={route.path}
             className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
               isActive
-                ? "bg-indigo-600/10 text-indigo-400"
-                : "text-stone-400 hover:bg-stone-800 hover:text-stone-200"
+                ? "bg-neutral-200 text-neutral-800 font-medium"
+                : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
             }`}
           >
-            <Icon className={isActive ? "text-indigo-400" : ""} />
+            <Icon className={isActive ? "text-neutral-800" : ""} size={18} />
             {route.label}
-          </button>
+          </Link>
         );
       })}
     </nav>

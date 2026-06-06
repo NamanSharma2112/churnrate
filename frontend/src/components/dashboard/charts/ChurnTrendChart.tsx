@@ -14,48 +14,49 @@ import { churnTrendData } from "@/lib/mock-data";
 
 export function ChurnTrendChart() {
   return (
-    <div className="rounded-xl border border-stone-800 bg-stone-900 p-5">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-stone-200">
+          <h3 className="text-sm font-semibold text-neutral-800">
             Churn Rate Trend
           </h3>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-neutral-500">
             Actual vs ML predicted churn rate
           </p>
         </div>
         <div className="flex gap-4">
           <div className="flex items-center gap-1.5">
             <div className="h-2 w-2 rounded-full bg-indigo-500" />
-            <span className="text-xs text-stone-500">Actual</span>
+            <span className="text-xs text-neutral-500">Actual</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-xs text-stone-500">Predicted</span>
+            <span className="text-xs text-neutral-500">Predicted</span>
           </div>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={churnTrendData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#292524" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
           <XAxis
             dataKey="month"
-            stroke="#78716c"
+            stroke="#a3a3a3"
             fontSize={11}
             tickLine={false}
           />
           <YAxis
-            stroke="#78716c"
+            stroke="#a3a3a3"
             fontSize={11}
             tickLine={false}
             tickFormatter={(v) => `${v}%`}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1c1917",
-              border: "1px solid #292524",
+              backgroundColor: "#ffffff",
+              border: "1px solid #e5e5e5",
               borderRadius: "8px",
               fontSize: "12px",
+              color: "#262626",
             }}
             formatter={(value: number) => [`${value}%`]}
           />

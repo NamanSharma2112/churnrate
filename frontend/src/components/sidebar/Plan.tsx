@@ -1,24 +1,24 @@
 "use client";
 
-import { FiZap } from "react-icons/fi";
+import { ZapIcon } from "hugeicons-react";
 
 export function Plan() {
   return (
-    <div className="mt-4 rounded-lg border border-stone-800 bg-stone-800/50 p-3">
+    <div className="mt-4 rounded-lg border border-neutral-200 bg-[#FCFCFC] p-3 shadow-sm">
       <div className="mb-2 flex items-center gap-2">
-        <FiZap className="text-yellow-400" />
-        <span className="text-sm font-semibold text-stone-200">Pro Plan</span>
+        <ZapIcon className="text-yellow-500" size={16} />
+        <span className="text-sm font-semibold text-neutral-800">Pro Plan</span>
       </div>
-      <p className="mb-3 text-xs text-stone-500">
+      <p className="mb-3 text-xs text-neutral-500">
         10,847 / 15,000 customers tracked
       </p>
-      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-stone-700">
+      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-neutral-200">
         <div
-          className="h-full rounded-full bg-indigo-500"
+          className="h-full rounded-full bg-indigo-600"
           style={{ width: "72%" }}
         />
       </div>
-      <button className="w-full rounded-lg bg-indigo-600 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-700">
+      <button className="w-full rounded-lg bg-neutral-900 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-800">
         Upgrade Plan
       </button>
     </div>
