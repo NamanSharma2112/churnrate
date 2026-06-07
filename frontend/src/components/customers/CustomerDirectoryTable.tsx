@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useDashboardStore } from "@/store/dashboard";
-import { Search01Icon, FilterIcon, MoreVerticalCircle01Icon } from "hugeicons-react";
+import { useAuthStore } from "@/store/auth";
+import { Search01Icon, FilterIcon, MoreVerticalCircle01Icon, Brain01Icon, Loading01Icon } from "hugeicons-react";
 
 function getHealthColor(score: number) {
   if (score >= 70) return "text-emerald-500 bg-emerald-50";
@@ -10,7 +12,30 @@ function getHealthColor(score: number) {
 }
 
 export function CustomerDirectoryTable() {
-  const { customers } = useDashboardStore();
+  const { customers, fetchCustomers } = useDashboardStore();
+  const { token } = useAuthStore();
+  const [predictingId, setPredictingId] = useState<string | null>(null);
+
+  const handlePredict = async (customerId: string) => {
+    try {
+      setPredictingId(customerId);
+      const res = await fetch("http://localhost:3002/api/predictions/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ customerId })
+      });
+      if (res.ok) {
+        await fetchCustomers();
+      }
+    } catch (err) {
+      console.error("Failed to run prediction", err);
+    } finally {
+      setPredictingId(null);
+    }
+  };
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
@@ -93,9 +118,19 @@ export function CustomerDirectoryTable() {
                   Oct 24, 2023
                 </td>
                 <td className="py-4 text-right">
-                  <button className="rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-800">
-                    <MoreVerticalCircle01Icon size={18} />
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button 
+                      onClick={() => handlePredict(customer.id)}
+                      disabled={predictingId === customer.id}
+                      title="Predict Churn Risk"
+                      className="rounded-lg p-1.5 text-indigo-500 transition-colors hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-50"
+                    >
+                      {predictingId === customer.id ? <Loading01Icon size={18} className="animate-spin" /> : <Brain01Icon size={18} />}
+                    </button>
+                    <button className="rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-800">
+                      <MoreVerticalCircle01Icon size={18} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

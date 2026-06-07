@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { useDashboardStore } from "@/store/dashboard";
 
 import { Topbar } from "./Topbar";
 import { StatsGrid } from "./StatsGrid";
@@ -9,6 +11,12 @@ import { ActivityFeed } from "./ActivityFeed";
 import { AtRiskTable } from "./AtRiskTable";
 
 export function Dashboard() {
+  const { fetchDashboard } = useDashboardStore();
+  
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
   return (
     <div className="min-h-screen p-6">
       <Topbar />

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Sidebar } from "@/components/sidebar/Sidebar";
-import { CommandPalette } from "@/components/CommandPalette";
+import { AuthWrapper } from "@/components/AuthWrapper";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -21,11 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body className="bg-background text-foreground antialiased flex h-screen overflow-hidden">
-        <Sidebar />
-        <CommandPalette />
-        <div className="flex-1 overflow-y-auto">
+        <AuthWrapper>
           {children}
-        </div>
+        </AuthWrapper>
       </body>
     </html>
   );

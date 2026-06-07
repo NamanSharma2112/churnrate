@@ -1,10 +1,17 @@
 "use client";
-
+import { useEffect } from "react";
+import { useDashboardStore } from "@/store/dashboard";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { CustomerDirectoryTable } from "@/components/customers/CustomerDirectoryTable";
 import { UserGroupIcon, Coins01Icon, ChartLineData01Icon } from "hugeicons-react";
 
 export default function CustomersPage() {
+  const { fetchCustomers } = useDashboardStore();
+  
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
+
   return (
     <div className="p-6 min-h-screen">
       <div className="mb-6 flex items-center justify-between">
