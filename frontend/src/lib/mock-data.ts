@@ -183,3 +183,33 @@ export const topChurnRiskCustomers: Customer[] = [
     engagementTrend: "down",
   },
 ];
+
+export const allCustomers: Customer[] = [
+  ...topChurnRiskCustomers,
+  {
+    id: "c6",
+    name: "Alex Johnson",
+    email: "alex@example.com",
+    company: "Example Corp",
+    plan: "enterprise",
+    mrr: 1500,
+    churnRisk: 0.12,
+    lastActive: "2 hours ago",
+    signupDate: "2023-01-10",
+    healthScore: 95,
+    engagementTrend: "up",
+  },
+  {
+    id: "c7",
+    name: "Maria Garcia",
+    email: "maria@startup.io",
+    company: "Startup IO",
+    plan: "starter",
+    mrr: 49,
+    churnRisk: 0.25,
+    lastActive: "1 day ago",
+    signupDate: "2024-11-01",
+    healthScore: 82,
+    engagementTrend: "stable",
+  },
+];

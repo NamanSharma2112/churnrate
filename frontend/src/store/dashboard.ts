@@ -4,10 +4,12 @@ import {
   dashboardStats,
   recentActivity,
   topChurnRiskCustomers,
+  allCustomers,
 } from "@/lib/mock-data";
 
 interface DashboardState {
   stats: DashboardStats;
+  customers: Customer[];
   atRiskCustomers: Customer[];
   activity: ActivityEvent[];
   sidebarOpen: boolean;
@@ -19,6 +21,7 @@ interface DashboardState {
 
 export const useDashboardStore = create<DashboardState>((set) => ({
   stats: dashboardStats,
+  customers: allCustomers,
   atRiskCustomers: topChurnRiskCustomers,
   activity: recentActivity,
   sidebarOpen: true,
