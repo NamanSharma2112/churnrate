@@ -1,6 +1,6 @@
 # ChurnRate - Customer Churn Prediction Platform
 
-churnrate.fun
+https://www.churnrate.fun/
 
 A full-stack SaaS application for predicting and managing customer churn with an interactive dashboard, real-time analytics, and ML-powered predictions.
 
