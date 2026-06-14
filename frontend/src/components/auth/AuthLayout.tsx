@@ -95,20 +95,22 @@ export function AuthLayout({ children, currentType }: { children: React.ReactNod
           {/* Decorative Background grid */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
           
-          <div className="relative z-10 w-full max-w-lg mx-auto mb-16 text-center">
+          <div className="relative z-10 w-full max-w-lg mx-auto mb-8 text-center min-h-[300px]">
             {features.map((feature, idx) => {
               const Icon = feature.icon;
               return (
                 <div 
                   key={idx} 
                   className={cn(
-                    "absolute bottom-0 left-0 w-full transition-all duration-1000 transform",
+                    "absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 transform",
                     currentSlide === idx ? "opacity-100 translate-y-0 relative" : "opacity-0 translate-y-8 absolute pointer-events-none"
                   )}
                 >
-                  <div className="mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
-                    <Icon size={32} className="text-white" />
+                  <div className="mx-auto mb-8 relative w-64 h-48 sm:w-80 sm:h-56 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden flex items-center justify-center">
+                    <Icon size={64} className="text-white/50" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </div>
+                  
                   <h3 className="text-3xl font-bold tracking-tight text-white mb-4">
                     {feature.title}
                   </h3>
