@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useAuthStore } from "@/store/auth";
 import { useDashboardStore } from "@/store/dashboard";
+import { API_BASE } from "@/lib/api";
 import { CloudUploadIcon, File02Icon, CheckmarkCircle01Icon, Loading01Icon } from "hugeicons-react";
 
 export default function ImportPage() {
@@ -53,7 +54,7 @@ export default function ImportPage() {
         signupDate: row.signupdate || new Date().toISOString(),
       })).filter(c => c.email); // Only include valid rows with email
 
-      const res = await fetch("http://localhost:3002/api/data/import", {
+      const res = await fetch(`${API_BASE}/api/data/import`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

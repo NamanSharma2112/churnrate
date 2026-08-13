@@ -3,12 +3,33 @@
 import { useState } from "react";
 import { useDashboardStore } from "@/store/dashboard";
 import { useAuthStore } from "@/store/auth";
+import { API_BASE } from "@/lib/api";
 import { Search01Icon, FilterIcon, MoreVerticalCircle01Icon, Brain01Icon, Loading01Icon } from "hugeicons-react";
 
 function getHealthColor(score: number) {
   if (score >= 70) return "text-emerald-500 bg-emerald-50";
   if (score >= 40) return "text-yellow-500 bg-yellow-50";
   return "text-red-500 bg-red-50";
+}
+
+function formatJoinDate(signupDate: string) {
+  const date = new Date(signupDate);
+  if (Number.isNaN(date.getTime())) return signupDate;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// Matches how the API counts active customers: seen within the last 30 days.
+function isActive(customer: { lastActiveAt?: string }) {
+  if (!customer.lastActiveAt) return true;
+  const lastActive = new Date(customer.lastActiveAt);
+  if (Number.isNaN(lastActive.getTime())) return true;
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  return lastActive > thirtyDaysAgo;
 }
 
 export function CustomerDirectoryTable() {
@@ -19,7 +40,7 @@ export function CustomerDirectoryTable() {
   const handlePredict = async (customerId: string) => {
     try {
       setPredictingId(customerId);
-      const res = await fetch("http://localhost:3002/api/predictions/predict", {
+      const res = await fetch(`${API_BASE}/api/predictions/predict`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,13 +130,20 @@ export function CustomerDirectoryTable() {
                   </span>
                 </td>
                 <td className="py-4 pr-4">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Active
-                  </span>
+                  {isActive(customer) ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      Active
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-500">
+                      <div className="h-1.5 w-1.5 rounded-full bg-neutral-400" />
+                      Inactive
+                    </span>
+                  )}
                 </td>
                 <td className="py-4 pr-4 text-sm text-neutral-500">
-                  Oct 24, 2023
+                  {formatJoinDate(customer.signupDate)}
                 </td>
                 <td className="py-4 text-right">
                   <div className="flex items-center justify-end gap-2">

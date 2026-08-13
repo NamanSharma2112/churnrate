@@ -7,9 +7,11 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { riskDistribution } from "@/lib/mock-data";
+import { useDashboardStore } from "@/store/dashboard";
 
 export function RiskDistributionChart() {
+  const { riskDistribution } = useDashboardStore();
+
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="mb-4">

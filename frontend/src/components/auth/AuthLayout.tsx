@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Shield01Icon, ChartLineData01Icon, AnalyticsUpIcon, MouseIcon } from "hugeicons-react";
+import { Shield01Icon, ChartLineData01Icon, AnalyticsUpIcon } from "hugeicons-react";
 import { cn } from "@/lib/utils";
 
 const features = [

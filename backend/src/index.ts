@@ -13,7 +13,7 @@ import dataIngestionRoutes from "./routes/data-ingestion.js";
 const app = express();
 const httpServer = createServer(app);
 
-app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
+app.use(cors({ origin: config.corsOrigins, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 
 app.get("/api/health", (_req, res) => {

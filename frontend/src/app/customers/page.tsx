@@ -6,8 +6,8 @@ import { CustomerDirectoryTable } from "@/components/customers/CustomerDirectory
 import { UserGroupIcon, Coins01Icon, ChartLineData01Icon } from "hugeicons-react";
 
 export default function CustomersPage() {
-  const { fetchCustomers } = useDashboardStore();
-  
+  const { customers, fetchCustomers } = useDashboardStore();
+
   useEffect(() => {
     fetchCustomers();
   }, [fetchCustomers]);
@@ -24,7 +24,7 @@ export default function CustomersPage() {
       <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatCard
           title="Total Customers"
-          value="2,420"
+          value={customers.length.toLocaleString()}
           change={12.5}
           icon={UserGroupIcon}
           iconColor="#6366f1"
