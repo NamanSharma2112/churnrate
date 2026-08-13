@@ -7,6 +7,7 @@ import {
   ArrowUp01Icon,
   ArrowDown01Icon,
 } from "hugeicons-react";
+import { formatDistanceToNow } from "date-fns";
 import { useDashboardStore } from "@/store/dashboard";
 import type { ActivityEvent } from "@/types";
 
@@ -17,6 +18,15 @@ const iconMap: Record<ActivityEvent["type"], { icon: typeof UserMinus01Icon; col
   downgrade: { icon: ArrowDown01Icon, color: "#f59e0b" },
   warning: { icon: Alert01Icon, color: "#f97316" },
 };
+
+const fallbackIcon = { icon: Alert01Icon, color: "#a3a3a3" };
+
+// The API sends ISO timestamps; the mock fallback already uses "2 min ago".
+function formatTimestamp(timestamp: string): string {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return timestamp;
+  return formatDistanceToNow(date, { addSuffix: true });
+}
 
 export function ActivityFeed() {
   const { activity } = useDashboardStore();
@@ -31,7 +41,7 @@ export function ActivityFeed() {
       </div>
       <div className="space-y-3 flex-1 flex flex-col justify-between">
         {activity.map((event) => {
-          const { icon: Icon, color } = iconMap[event.type];
+          const { icon: Icon, color } = iconMap[event.type] ?? fallbackIcon;
           return (
             <div
               key={event.id}
@@ -52,7 +62,7 @@ export function ActivityFeed() {
                 </p>
               </div>
               <span className="shrink-0 text-[10px] text-neutral-400">
-                {event.timestamp}
+                {formatTimestamp(event.timestamp)}
               </span>
             </div>
           );

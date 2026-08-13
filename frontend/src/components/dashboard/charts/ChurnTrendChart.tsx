@@ -10,9 +10,11 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { churnTrendData } from "@/lib/mock-data";
+import { useDashboardStore } from "@/store/dashboard";
 
 export function ChurnTrendChart() {
+  const { churnTrend } = useDashboardStore();
+
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
@@ -36,7 +38,7 @@ export function ChurnTrendChart() {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={280}>
-        <LineChart data={churnTrendData}>
+        <LineChart data={churnTrend}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
           <XAxis
             dataKey="month"

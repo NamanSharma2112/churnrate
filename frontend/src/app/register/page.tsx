@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth";
+import { API_BASE } from "@/lib/api";
 import { Mail01Icon, LockKeyIcon, ViewIcon, UserIcon, Building04Icon } from "hugeicons-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 
@@ -24,10 +25,17 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3002/api/auth/register", {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, tenantName }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          // The field is optional, but the API rejects an empty string,
+          // so omit it entirely when the user leaves it blank.
+          ...(tenantName.trim() ? { tenantName: tenantName.trim() } : {}),
+        }),
       });
 
       const data = await res.json();

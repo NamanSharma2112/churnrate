@@ -10,6 +10,9 @@ export interface Customer {
   signupDate: string;
   healthScore: number;
   engagementTrend: "up" | "down" | "stable";
+  // Returned by the API (mock records only carry the display-only `lastActive`).
+  lastActiveAt?: string;
+  riskLevel?: "low" | "medium" | "high" | "critical";
 }
 
 export interface ChurnPrediction {
