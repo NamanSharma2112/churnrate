@@ -50,6 +50,21 @@ model Customer {
   engagementTrend String   @default("stable") @map("engagement_trend")
   lastActiveAt    DateTime @default(now()) @map("last_active_at")
   signupDate      DateTime @default(now()) @map("signup_date")
+
+  // Optional churn signals. Nullable so a company can import whatever it has
+  // and the model falls back to a derived value for anything missing.
+  supportTickets  Int?     @map("support_tickets")
+  featureUsagePct Float?   @map("feature_usage_pct")
+  loginFrequency  Float?   @map("login_frequency")
+  npsScore        Float?   @map("nps_score")
+  contractValue   Float?   @map("contract_value")
+
+  // Where the record came from ("csv", "stripe", "api") and the columns we
+  // could not map, kept verbatim so nothing the customer uploaded is lost.
+  source          String   @default("manual")
+  sourceId        String?  @map("source_id")
+  attributes      Json     @default("{}")
+
   tenantId        String   @map("tenant_id")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
@@ -119,4 +134,39 @@ model JobLog {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("job_logs")
+}
+
+model Integration {
+  id           String    @id @default(uuid())
+  tenantId     String    @map("tenant_id")
+  provider     String
+  status       String    @default("connected")
+  // Encrypted at rest (AES-256-GCM); never returned to the client.
+  credentials  String
+  accountName  String?   @map("account_name")
+  settings     Json      @default("{}")
+  lastSyncedAt DateTime? @map("last_synced_at")
+  lastSyncStats Json?    @map("last_sync_stats")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@unique([tenantId, provider])
+  @@map("integrations")
+}
+
+model ImportBatch {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  source      String
+  fileName    String?  @map("file_name")
+  rowCount    Int      @default(0) @map("row_count")
+  imported    Int      @default(0)
+  updated     Int      @default(0)
+  skipped     Int      @default(0)
+  mapping     Json     @default("{}")
+  errors      Json     @default("[]")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, createdAt])
+  @@map("import_batches")
 }

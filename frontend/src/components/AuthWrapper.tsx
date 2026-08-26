@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
-import { Sidebar } from "@/components/sidebar/Sidebar";
-import { CommandPalette } from "@/components/CommandPalette";
+import { AppShell } from "@/components/layout/AppShell";
+
+/** Routes that render their own full-page layout and need no session. */
+const PUBLIC_ROUTES = new Set(["/", "/login", "/register"]);
+/** Routes that a signed-in user should be redirected away from. */
+const AUTH_ROUTES = new Set(["/login", "/register"]);
 
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, init } = useAuthStore();
@@ -12,7 +16,8 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const isAuthRoute = pathname === "/login" || pathname === "/register";
+  const isPublicRoute = PUBLIC_ROUTES.has(pathname ?? "");
+  const isAuthRoute = AUTH_ROUTES.has(pathname ?? "");
 
   useEffect(() => {
     init();
@@ -20,34 +25,28 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   }, [init]);
 
   useEffect(() => {
-    if (mounted) {
-      if (!isAuthenticated && !isAuthRoute) {
-        router.push("/login");
-      } else if (isAuthenticated && isAuthRoute) {
-        router.push("/");
-      }
-    }
-  }, [mounted, isAuthenticated, isAuthRoute, router]);
+    if (!mounted) return;
 
+    if (!isAuthenticated && !isPublicRoute) {
+      router.replace("/login");
+    } else if (isAuthenticated && isAuthRoute) {
+      router.replace("/dashboard");
+    }
+  }, [mounted, isAuthenticated, isPublicRoute, isAuthRoute, router]);
+
+  // Until the store has read localStorage we cannot tell signed-in from
+  // signed-out, so render nothing rather than flashing the wrong shell.
   if (!mounted) {
-    return <div className="h-screen w-full bg-background" />;
+    return <div className="min-h-screen w-full bg-background" />;
   }
 
-  if (isAuthRoute) {
+  if (isPublicRoute) {
     return <>{children}</>;
   }
 
   if (!isAuthenticated) {
-    return <div className="h-screen w-full bg-background" />;
+    return <div className="min-h-screen w-full bg-background" />;
   }
 
-  return (
-    <>
-      <Sidebar />
-      <CommandPalette />
-      <div className="flex-1 overflow-y-auto">
-        {children}
-      </div>
-    </>
-  );
+  return <AppShell>{children}</AppShell>;
 }

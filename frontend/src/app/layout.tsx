@@ -4,12 +4,12 @@ import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "ChurnRate - Customer Churn Prediction",
+  title: "ChurnRate — Predict customer churn before it happens",
   description:
-    "AI-powered customer churn prediction and analytics dashboard",
+    "Import customer data from any source, get ML-powered churn predictions, and act on at-risk accounts before they leave.",
 };
 
 export default function RootLayout({
@@ -18,11 +18,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className="bg-background text-foreground antialiased flex h-screen overflow-hidden">
-        <AuthWrapper>
-          {children}
-        </AuthWrapper>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("font-sans", geist.variable)}
+    >
+      {/*
+        The shell used to be `flex h-screen overflow-hidden`, which clipped any
+        page taller than the viewport with no way to scroll to the rest.
+      */}
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <AuthWrapper>{children}</AuthWrapper>
       </body>
     </html>
   );

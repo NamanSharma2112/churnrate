@@ -8,7 +8,19 @@ from app.schemas.prediction import (
     TrainRequest,
     TrainResponse,
 )
-from app.services.feature_engineering import extract_features
+import numpy as np
+
+from app.services.feature_engineering import extract_features, FEATURE_LABELS
+
+
+def risk_level_for(probability: float) -> str:
+    if probability > 0.8:
+        return "critical"
+    if probability > 0.6:
+        return "high"
+    if probability > 0.4:
+        return "medium"
+    return "low"
 
 router = APIRouter()
 
@@ -26,20 +38,10 @@ async def predict(request: Request, body: PredictionRequest):
     features = extract_features(body.features)
     probability, top_factors = manager.predict(features)
 
-    risk_level = (
-        "critical"
-        if probability > 0.8
-        else "high"
-        if probability > 0.6
-        else "medium"
-        if probability > 0.4
-        else "low"
-    )
-
     return PredictionResponse(
         customer_id=body.customer_id,
         probability=round(probability, 4),
-        risk_level=risk_level,
+        risk_level=risk_level_for(probability),
         top_factors=top_factors,
         model_version=manager.get_version(),
     )
@@ -51,30 +53,24 @@ async def batch_predict(request: Request, body: BatchPredictionRequest):
     if not manager.is_loaded():
         raise HTTPException(status_code=503, detail="Model not loaded")
 
-    predictions = []
-    for customer in body.customers:
-        features = extract_features(customer.features)
-        probability, top_factors = manager.predict(features)
+    if not body.customers:
+        return BatchPredictionResponse(predictions=[], total=0)
 
-        risk_level = (
-            "critical"
-            if probability > 0.8
-            else "high"
-            if probability > 0.6
-            else "medium"
-            if probability > 0.4
-            else "low"
-        )
+    matrix = np.vstack([extract_features(c.features) for c in body.customers])
+    probabilities, factors = manager.predict_batch(matrix)
 
-        predictions.append(
-            PredictionResponse(
-                customer_id=customer.customer_id,
-                probability=round(probability, 4),
-                risk_level=risk_level,
-                top_factors=top_factors,
-                model_version=manager.get_version(),
-            )
+    predictions = [
+        PredictionResponse(
+            customer_id=customer.customer_id,
+            probability=round(probability, 4),
+            risk_level=risk_level_for(probability),
+            top_factors=top_factors,
+            model_version=manager.get_version(),
         )
+        for customer, probability, top_factors in zip(
+            body.customers, probabilities, factors
+        )
+    ]
 
     return BatchPredictionResponse(predictions=predictions, total=len(predictions))
 
@@ -89,6 +85,17 @@ async def train_model(request: Request, body: TrainRequest):
         model_version=manager.get_version(),
         metrics=metrics,
     )
+
+
+@router.get("/features")
+async def feature_schema():
+    """The signals the model consumes, for mapping and documentation UIs."""
+    return {
+        "features": [
+            {"name": name, "label": label}
+            for name, label in FEATURE_LABELS.items()
+        ]
+    }
 
 
 @router.get("/model/info")

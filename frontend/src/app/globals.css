@@ -23,6 +23,14 @@
   --border: #e5e5e5;
   --input: #e5e5e5;
   --ring: #d4d4d4;
+  --brand: #4f46e5;
+  --brand-foreground: #ffffff;
+  --brand-muted: #eef2ff;
+  --brand-border: #c7d2fe;
+  --surface: #fcfcfc;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
   --chart-1: #6366f1;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
@@ -48,19 +56,20 @@ body {
   letter-spacing: -0.31px;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar, matched to the light surface palette. */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #1e1e2e;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #45475a;
-  border-radius: 3px;
+  background: #d4d4d4;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #585b70;
+  background: #a3a3a3;
 }
 
 @theme inline {
@@ -74,6 +83,14 @@ body {
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-border: var(--brand-border);
+  --color-surface: var(--surface);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -117,5 +134,37 @@ body {
   }
   html {
     @apply font-sans;
+  }
+}
+@layer utilities {
+  /* Shared surface for every panel in the product, so cards on the landing
+     page, auth screens and dashboard read as one system. */
+  .panel {
+    @apply rounded-xl border border-neutral-200 bg-white shadow-sm;
+  }
+
+  /* Faint grid used behind hero and auth artwork. */
+  .grid-backdrop {
+    background-image:
+      linear-gradient(to right, rgb(0 0 0 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(0 0 0 / 0.04) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+  }
+}
+
+/*
+  Respect reduced-motion for our own UI, but leave chart internals alone:
+  Recharts animates series by transitioning stroke-dasharray, so forcing the
+  duration to ~0 leaves the paths stuck in their initial hidden state and the
+  charts render as bare axes. Chart entrance animation is disabled in the
+  components themselves instead.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *:not(.recharts-wrapper *),
+  *:not(.recharts-wrapper *)::before,
+  *:not(.recharts-wrapper *)::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

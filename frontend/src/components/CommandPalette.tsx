@@ -11,6 +11,7 @@ import {
   CpuSettingsIcon,
   CloudUploadIcon,
   Settings01Icon,
+  PlugSocketIcon,
 } from "hugeicons-react";
 
 import {
@@ -54,7 +55,7 @@ export function CommandPalette() {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Navigation">
-            <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
+            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard"))}>
               <Home01Icon className="mr-2 h-4 w-4" />
               <span>Dashboard</span>
             </CommandItem>
@@ -88,6 +89,10 @@ export function CommandPalette() {
             <CommandItem onSelect={() => runCommand(() => router.push("/import"))}>
               <CloudUploadIcon className="mr-2 h-4 w-4" />
               <span>Data Import</span>
+            </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => router.push("/integrations"))}>
+              <PlugSocketIcon className="mr-2 h-4 w-4" />
+              <span>Integrations</span>
             </CommandItem>
           </CommandGroup>
         </CommandList>

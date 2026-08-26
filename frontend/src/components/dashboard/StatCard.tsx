@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowUp01Icon, ArrowDown01Icon } from "hugeicons-react";
+import { ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon } from "hugeicons-react";
+import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   title: string;
@@ -8,8 +9,9 @@ interface StatCardProps {
   change: number;
   icon: React.ElementType;
   iconColor: string;
-  prefix?: string;
   suffix?: string;
+  /** True when a rise is bad (churn rate, at-risk count). */
+  inverse?: boolean;
 }
 
 export function StatCard({
@@ -19,43 +21,51 @@ export function StatCard({
   icon: Icon,
   iconColor,
   suffix,
+  inverse = false,
 }: StatCardProps) {
-  const isPositive = change >= 0;
-  const isGood = title === "Churn Rate" ? !isPositive : isPositive;
+  const isFlat = Math.abs(change) < 0.05;
+  const isPositive = change > 0;
+  const isGood = inverse ? !isPositive : isPositive;
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 transition-colors hover:border-neutral-300 shadow-sm">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+    <div className="flex flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300">
+      {/*
+        Fixed header height so the value baseline lines up across the row —
+        "Total Customers" wraps to two lines where "MRR" does not.
+      */}
+      <div className="mb-3 flex min-h-[34px] items-start justify-between gap-2">
+        <span className="text-[11px] font-medium uppercase leading-tight tracking-wider text-neutral-500">
           {title}
         </span>
         <div
-          className="flex h-8 w-8 items-center justify-center rounded-lg"
+          className="flex size-8 shrink-0 items-center justify-center rounded-lg"
           style={{ backgroundColor: `${iconColor}15` }}
         >
           <Icon size={16} style={{ color: iconColor }} />
         </div>
       </div>
-      <div className="flex items-end justify-between">
-        <p className="text-2xl font-bold text-neutral-800">
+
+      <div className="mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-1">
+        <p className="text-2xl font-bold leading-none text-neutral-900">
           {value}
           {suffix && (
-            <span className="ml-1 text-sm font-normal text-neutral-500">
-              {suffix}
-            </span>
+            <span className="ml-1 text-sm font-normal text-neutral-500">{suffix}</span>
           )}
         </p>
         <div
-          className={`flex items-center gap-1 text-xs font-medium ${
-            isGood ? "text-emerald-500" : "text-red-500"
-          }`}
-        >
-          {isPositive ? (
-            <ArrowUp01Icon size={14} />
-          ) : (
-            <ArrowDown01Icon size={14} />
+          className={cn(
+            "flex items-center gap-0.5 text-xs font-medium",
+            isFlat ? "text-neutral-400" : isGood ? "text-emerald-600" : "text-red-500"
           )}
-          {Math.abs(change)}%
+        >
+          {isFlat ? (
+            <MinusSignIcon size={13} />
+          ) : isPositive ? (
+            <ArrowUp01Icon size={13} />
+          ) : (
+            <ArrowDown01Icon size={13} />
+          )}
+          {isFlat ? "0%" : `${Math.abs(change)}%`}
         </div>
       </div>
     </div>
