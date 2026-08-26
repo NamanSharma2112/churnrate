@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+# Root-level lockfile: each service manages its own.
+/package-lock.json
 __pycache__/
 *.pyc
 .pyo
@@ -22,6 +24,9 @@ build/
 *.swo
 
 # Next.js
+.next/
+out/
+next-env.d.ts
 frontend/.next/
 frontend/out/
 
