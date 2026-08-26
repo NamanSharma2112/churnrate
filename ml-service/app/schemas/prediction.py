@@ -1,7 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CustomerFeatures(BaseModel):
+    # Companies send whatever columns they have; unknown extras are ignored
+    # rather than rejected so an import never fails on a stray field.
+    model_config = ConfigDict(extra="ignore")
+
     mrr: float = 0.0
     health_score: float = 50.0
     plan: str = "free"
@@ -21,6 +25,8 @@ class PredictionRequest(BaseModel):
 class PredictionFactor(BaseModel):
     feature: str
     impact: float
+    label: str | None = None
+    direction: str | None = None
 
 
 class PredictionResponse(BaseModel):

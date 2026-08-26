@@ -1,45 +1,52 @@
 "use client";
 
+import { useEffect } from "react";
+import { useDashboardStore } from "@/store/dashboard";
 import { AtRiskTable } from "@/components/dashboard/AtRiskTable";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { StatCard } from "@/components/dashboard/StatCard";
+import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { Alert01Icon, DollarCircleIcon } from "hugeicons-react";
 
 export default function AtRiskPage() {
-  return (
-    <div className="p-6 min-h-screen">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-800">At-Risk Customers</h1>
-          <p className="text-sm text-neutral-500">High priority customers needing intervention</p>
-        </div>
-      </div>
+  const { fetchDashboard, atRiskCustomers, atRiskMrr, stats } = useDashboardStore();
 
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  return (
+    <PageContainer>
+      <PageHeader
+        title="At-Risk Customers"
+        description="High-priority accounts that need intervention"
+      />
+
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-6 sm:grid-cols-2 sm:gap-4">
         <StatCard
-          title="Total At-Risk MRR"
-          value="$12,450"
-          change={8.4}
+          title="MRR at risk"
+          value={`$${Math.round(atRiskMrr).toLocaleString()}`}
+          change={0}
           icon={DollarCircleIcon}
           iconColor="#ef4444"
+          inverse
         />
         <StatCard
-          title="Accounts Requiring Action"
-          value="18"
-          change={-2.1}
+          title="Accounts requiring action"
+          value={(stats.atRiskCustomers || atRiskCustomers.length).toLocaleString()}
+          change={stats.atRiskChange}
           icon={Alert01Icon}
           iconColor="#f59e0b"
+          inverse
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <AtRiskTable />
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-3">
+        <div className="xl:col-span-2">
+          <AtRiskTable showViewAll={false} />
         </div>
-        <div>
-          <ActivityFeed />
-        </div>
+        <ActivityFeed />
       </div>
-    </div>
+    </PageContainer>
   );
 }

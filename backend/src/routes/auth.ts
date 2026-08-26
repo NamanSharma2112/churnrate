@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "../config/database.js";
 import { config } from "../config/index.js";
 import { validate } from "../middleware/validate.js";
+import { authenticate } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -58,8 +59,14 @@ router.post("/register", validate(registerSchema), async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user.id, email: user.email, name: user.name, role: user.role },
-      tenant: { id: tenant.id, name: tenant.name, slug: tenant.slug },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        tenantId: tenant.id,
+      },
+      tenant: { id: tenant.id, name: tenant.name, slug: tenant.slug, plan: tenant.plan },
     });
   } catch (err) {
     console.error("Registration error:", err);
@@ -95,15 +102,61 @@ router.post("/login", validate(loginSchema), async (req, res) => {
 
     res.json({
       token,
-      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        tenantId: user.tenantId,
+      },
       tenant: {
         id: user.tenant.id,
         name: user.tenant.name,
         slug: user.tenant.slug,
+        plan: user.tenant.plan,
       },
     });
   } catch (err) {
     console.error("Login error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/** Current user + workspace, used by the app shell. */
+router.get("/me", authenticate, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.userId },
+      include: { tenant: true },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const customerCount = await prisma.customer.count({
+      where: { tenantId: user.tenantId },
+    });
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        tenantId: user.tenantId,
+      },
+      tenant: {
+        id: user.tenant.id,
+        name: user.tenant.name,
+        slug: user.tenant.slug,
+        plan: user.tenant.plan,
+        customerCount,
+      },
+    });
+  } catch (err) {
+    console.error("Profile error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });

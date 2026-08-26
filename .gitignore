@@ -30,6 +30,8 @@ ml-service/venv/
 ml-service/.venv/
 ml-service/mlruns/
 ml-service/mlartifacts/
+# Trained model artefacts — regenerated on first boot / at image build time.
+ml-service/data/models/
 
 # Database
 *.db
