@@ -13,6 +13,8 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const isAuthRoute = pathname === "/login" || pathname === "/register";
+  // "/" is public: visitors get the landing page, members get the dashboard.
+  const isHome = pathname === "/";
 
   useEffect(() => {
     init();
@@ -21,13 +23,13 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (mounted) {
-      if (!isAuthenticated && !isAuthRoute) {
+      if (!isAuthenticated && !isAuthRoute && !isHome) {
         router.push("/login");
       } else if (isAuthenticated && isAuthRoute) {
         router.push("/");
       }
     }
-  }, [mounted, isAuthenticated, isAuthRoute, router]);
+  }, [mounted, isAuthenticated, isAuthRoute, isHome, router]);
 
   if (!mounted) {
     return <div className="h-screen w-full bg-background" />;
@@ -38,7 +40,8 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    return <div className="h-screen w-full bg-background" />;
+    // Render the landing page full-bleed; every other route is redirecting.
+    return isHome ? <>{children}</> : <div className="h-screen w-full bg-background" />;
   }
 
   return (

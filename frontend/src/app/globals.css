@@ -119,3 +119,176 @@ body {
     @apply font-sans;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Landing page motion
+   Scroll reveals are driven by a `data-visible` attribute set by useInView, so
+   nothing animates until it is actually on screen.
+--------------------------------------------------------------------------- */
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes landing-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes landing-grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes landing-pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes landing-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes landing-shine {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@keyframes landing-ticker {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-reveal {
+  opacity: 0;
+}
+.landing-reveal[data-visible="true"] {
+  animation: landing-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+/* Cursor-tracked spotlight; --mx/--my are written by BentoCard on mouse move. */
+.landing-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklch, var(--spot, #0d9488), transparent 88%),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+.landing-spotlight:hover::before {
+  opacity: 1;
+}
+
+.landing-shine {
+  position: relative;
+  overflow: hidden;
+}
+.landing-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.32),
+    transparent
+  );
+  transform: translateX(-120%) skewX(-18deg);
+  pointer-events: none;
+}
+.landing-shine:hover::after {
+  animation: landing-shine 0.9s ease;
+}
+
+/* Subtle scrollbar for the landing surface only; the app shell keeps its own. */
+.landing-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.landing-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.landing-scroll::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+}
+.landing-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal,
+  .landing-reveal[data-visible="true"] {
+    animation: none;
+    opacity: 1;
+  }
+  .landing-shine::after,
+  .landing-spotlight::before {
+    display: none;
+  }
+  .landing-root *,
+  .landing-root *::before,
+  .landing-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
