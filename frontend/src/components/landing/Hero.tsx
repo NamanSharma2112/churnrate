@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { ArrowRight01Icon, PlayCircleIcon } from "hugeicons-react";
 import { useInView, useCountUp } from "@/hooks/useInView";
+import { HeroDashboard } from "./HeroDashboard";
 
 const STATS = [
   { value: 94, suffix: "%", label: "Prediction accuracy" },
   { value: 31, suffix: "%", label: "Less voluntary churn" },
   { value: 412, prefix: "$", suffix: "k", label: "Revenue retained" },
+  { value: 40, prefix: "<", suffix: "min", label: "Time to first score" },
 ];
 
 function Stat({
@@ -27,12 +29,12 @@ function Stat({
       data-visible={active}
       style={{ "--reveal-delay": `${delay}ms` } as React.CSSProperties}
     >
-      <div className="text-2xl font-semibold tracking-tight text-neutral-900 tabular-nums sm:text-3xl">
+      <div className="text-3xl font-semibold tracking-tight text-neutral-900 tabular-nums sm:text-4xl">
         {stat.prefix}
         {Math.round(value)}
         {stat.suffix}
       </div>
-      <div className="mt-1 text-xs text-neutral-500 sm:text-sm">{stat.label}</div>
+      <div className="mt-1.5 text-sm text-neutral-500">{stat.label}</div>
     </div>
   );
 }
@@ -41,11 +43,9 @@ export function Hero() {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.1 });
 
   return (
-    // The ambient backdrop lives on the page root so it sits behind the sticky
-    // nav too, rather than starting abruptly below it.
     <section ref={ref} className="relative">
-      <div className="mx-auto max-w-6xl px-6 pt-16 pb-16 sm:pt-24 sm:pb-24">
-        <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto max-w-7xl px-6 pt-16 pb-20 sm:pt-24 sm:pb-28 lg:px-10">
+        <div className="mx-auto max-w-4xl text-center">
           <div
             className="landing-reveal inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/70 py-1.5 pr-4 pl-1.5 text-xs text-neutral-600 shadow-sm backdrop-blur"
             data-visible={inView}
@@ -65,7 +65,7 @@ export function Hero() {
           </div>
 
           <h1
-            className="landing-reveal mt-7 text-4xl font-semibold tracking-tight text-balance text-neutral-900 sm:text-6xl"
+            className="landing-reveal mt-8 text-[2.75rem] leading-[1.02] font-semibold tracking-[-0.03em] text-balance text-neutral-900 sm:text-6xl lg:text-7xl"
             data-visible={inView}
             style={{ "--reveal-delay": "90ms" } as React.CSSProperties}
           >
@@ -76,7 +76,7 @@ export function Hero() {
           </h1>
 
           <p
-            className="landing-reveal mx-auto mt-5 max-w-xl text-base leading-relaxed text-pretty text-neutral-500 sm:text-lg"
+            className="landing-reveal mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-neutral-500 sm:text-xl"
             data-visible={inView}
             style={{ "--reveal-delay": "170ms" } as React.CSSProperties}
           >
@@ -85,26 +85,26 @@ export function Hero() {
           </p>
 
           <div
-            className="landing-reveal mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            className="landing-reveal mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
             data-visible={inView}
             style={{ "--reveal-delay": "250ms" } as React.CSSProperties}
           >
             <Link
               href="/register"
-              className="landing-shine group inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 px-6 text-sm font-medium text-white shadow-lg shadow-neutral-900/10 transition-all duration-300 hover:bg-neutral-800 hover:shadow-xl hover:shadow-neutral-900/15 active:translate-y-px sm:w-auto"
+              className="landing-shine group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 px-7 text-[15px] font-medium text-white shadow-lg shadow-neutral-900/10 transition-all duration-300 hover:bg-neutral-800 hover:shadow-xl hover:shadow-neutral-900/15 active:translate-y-px sm:w-auto"
             >
               Start free
               <ArrowRight01Icon
-                size={17}
+                size={18}
                 className="transition-transform duration-300 group-hover:translate-x-1"
               />
             </Link>
             <a
               href="#product"
-              className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-6 text-sm font-medium text-neutral-700 transition-all duration-300 hover:border-neutral-300 hover:bg-neutral-50 active:translate-y-px sm:w-auto"
+              className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-7 text-[15px] font-medium text-neutral-700 transition-all duration-300 hover:border-neutral-300 hover:bg-neutral-50 active:translate-y-px sm:w-auto"
             >
               <PlayCircleIcon
-                size={17}
+                size={18}
                 className="text-teal-600 transition-transform duration-300 group-hover:scale-110"
               />
               See how it works
@@ -120,13 +120,18 @@ export function Hero() {
           </p>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-6 border-t border-neutral-200/80 pt-10 text-center">
+        {/* Animated product frame */}
+        <div className="mx-auto mt-16 max-w-5xl sm:mt-20">
+          <HeroDashboard active={inView} />
+        </div>
+
+        <div className="mx-auto mt-20 grid max-w-4xl grid-cols-2 gap-8 border-t border-neutral-200/80 pt-12 text-center sm:grid-cols-4">
           {STATS.map((stat, i) => (
             <Stat
               key={stat.label}
               stat={stat}
               active={inView}
-              delay={420 + i * 100}
+              delay={520 + i * 90}
             />
           ))}
         </div>

@@ -40,6 +40,8 @@ export function BentoGrid() {
         <BentoCard
           className="lg:col-span-4 lg:row-span-2"
           eyebrow="Prediction"
+          panelTitle="Account · Northwind Labs"
+          panelMeta="scored 4m ago"
           title="Know who's leaving, and why"
           description="Every account gets a live churn score with the factors driving it — not a black box, but a call list you can act on."
           accent="#ef4444"
@@ -49,6 +51,8 @@ export function BentoGrid() {
         <BentoCard
           className="lg:col-span-2"
           eyebrow="Segments"
+          panelTitle="Risk distribution"
+          panelMeta="2,847 accounts"
           title="Your book, by risk"
           description="See the whole base split by risk band at a glance."
           accent="#f59e0b"
@@ -59,6 +63,8 @@ export function BentoGrid() {
         <BentoCard
           className="lg:col-span-2"
           eyebrow="Impact"
+          panelTitle="Revenue retained"
+          panelMeta="last 6 months"
           title="Revenue saved"
           description="Track the MRR your team retained after intervening."
           accent="#0d9488"
@@ -69,6 +75,8 @@ export function BentoGrid() {
         <BentoCard
           className="lg:col-span-2"
           eyebrow="Real time"
+          panelTitle="Alert stream"
+          panelMeta="live"
           title="Alerts that arrive early"
           description="Health drops and silent accounts surface the moment they happen."
           accent="#f97316"
@@ -79,6 +87,8 @@ export function BentoGrid() {
         <BentoCard
           className="lg:col-span-2"
           eyebrow="Health"
+          panelTitle="Health score"
+          panelMeta="rolling 30d"
           title="One score per account"
           description="Usage, support and billing signals folded into a single number."
           accent="#10b981"
@@ -89,6 +99,8 @@ export function BentoGrid() {
         <BentoCard
           className="lg:col-span-2"
           eyebrow="Ingest"
+          panelTitle="Import run"
+          panelMeta="completed"
           title="Live in an afternoon"
           description="Drop in a CSV or point us at Postgres — scored in seconds."
           accent="#6366f1"

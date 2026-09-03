@@ -157,12 +157,12 @@ export function LandingFooter() {
           © {new Date().getFullYear()} ChurnRate. All rights reserved.
         </p>
         <div className="flex items-center gap-5 text-xs text-neutral-500">
-          <a href="#" className="transition-colors hover:text-neutral-900">
+          <Link href="/privacy" className="transition-colors hover:text-neutral-900">
             Privacy
-          </a>
-          <a href="#" className="transition-colors hover:text-neutral-900">
+          </Link>
+          <Link href="/terms" className="transition-colors hover:text-neutral-900">
             Terms
-          </a>
+          </Link>
           <Link
             href="/login"
             className="transition-colors hover:text-neutral-900"

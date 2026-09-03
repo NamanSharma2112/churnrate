@@ -10,6 +10,10 @@ interface BentoCardProps {
   description: string;
   /** Animated visual for the cell; receives whether the card is on screen. */
   visual: (inView: boolean) => React.ReactNode;
+  /** Title shown in the embedded product panel's header bar. */
+  panelTitle: string;
+  /** Right-aligned meta text in the panel header. */
+  panelMeta: string;
   /** Accent colour used by the hover spotlight and the eyebrow label. */
   accent?: string;
   /** Stagger, in ms, applied to the reveal animation. */
@@ -22,6 +26,8 @@ export function BentoCard({
   title,
   description,
   visual,
+  panelTitle,
+  panelMeta,
   accent = "#0d9488",
   delay = 0,
   className,
@@ -73,7 +79,23 @@ export function BentoCard({
         </p>
       </div>
 
-      <div className="relative z-10 mt-6 flex-1">{visual(inView)}</div>
+      {/* The visual sits in an inset tray so each cell reads as a slice of the
+          real product rather than a floating chart. */}
+      <div className="relative z-10 mt-6 flex flex-1 rounded-xl bg-neutral-50/70 p-2.5 ring-1 ring-neutral-100 ring-inset">
+        <div className="flex w-full flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-neutral-100 px-3 py-2">
+            <span className="flex items-center gap-1.5 text-[10px] font-semibold text-neutral-600">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: accent }}
+              />
+              {panelTitle}
+            </span>
+            <span className="text-[9px] text-neutral-400">{panelMeta}</span>
+          </div>
+          <div className="flex-1 p-3.5">{visual(inView)}</div>
+        </div>
+      </div>
     </div>
   );
 }

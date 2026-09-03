@@ -36,7 +36,9 @@ export function AuthLayout({ children, currentType }: { children: React.ReactNod
   }, []);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-100 p-4 sm:p-8">
+    // w-full: this is a direct flex child of <body>, so without it the card
+    // shrinks to its content and sits left of centre.
+    <div className="flex min-h-screen w-full items-center justify-center overflow-y-auto bg-neutral-100 p-4 sm:p-8">
       <div className="flex w-full max-w-6xl overflow-hidden rounded-3xl bg-white shadow-2xl">
         
         {/* Left Pane - Form Container */}
@@ -81,7 +83,7 @@ export function AuthLayout({ children, currentType }: { children: React.ReactNod
             
             <div className="mt-8 text-center text-xs text-neutral-400">
               Copyright © ChurnRate, All Rights Reserved. <br/>
-              <a href="#" className="hover:text-teal-600 hover:underline">Terms & Conditions</a> | <a href="#" className="hover:text-teal-600 hover:underline">Privacy Policy</a>
+              <a href="/terms" className="hover:text-teal-600 hover:underline">Terms &amp; Conditions</a> | <a href="/privacy" className="hover:text-teal-600 hover:underline">Privacy Policy</a>
             </div>
           </div>
         </div>
