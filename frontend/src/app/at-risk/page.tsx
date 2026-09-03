@@ -1,11 +1,23 @@
 "use client";
 
+import { useEffect } from "react";
 import { AtRiskTable } from "@/components/dashboard/AtRiskTable";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Alert01Icon, DollarCircleIcon } from "hugeicons-react";
+import { useDashboardStore } from "@/store/dashboard";
 
 export default function AtRiskPage() {
+  // The table and feed are store-backed; fetch so they show real accounts
+  // rather than the mock fallback.
+  const { fetchDashboard, atRiskCustomers } = useDashboardStore();
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  const atRiskMrr = atRiskCustomers.reduce((sum, c) => sum + (c.mrr ?? 0), 0);
+
   return (
     <div className="p-6 min-h-screen">
       <div className="mb-6 flex items-center justify-between">
@@ -18,14 +30,14 @@ export default function AtRiskPage() {
       <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
         <StatCard
           title="Total At-Risk MRR"
-          value="$12,450"
+          value={`$${atRiskMrr.toLocaleString()}`}
           change={8.4}
           icon={DollarCircleIcon}
           iconColor="#ef4444"
         />
         <StatCard
           title="Accounts Requiring Action"
-          value="18"
+          value={atRiskCustomers.length.toLocaleString()}
           change={-2.1}
           icon={Alert01Icon}
           iconColor="#f59e0b"

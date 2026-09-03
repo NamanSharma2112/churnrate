@@ -13,7 +13,14 @@ function Tabs({
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
+      orientation={orientation}
       data-orientation={orientation}
+      // The variants below (`data-horizontal:`, `group-data-vertical/tabs:`)
+      // compile to attribute-presence selectors, so the orientation has to be
+      // its own attribute — `data-orientation="horizontal"` never matches them.
+      {...(orientation === "vertical"
+        ? { "data-vertical": "" }
+        : { "data-horizontal": "" })}
       className={cn(
         "group/tabs flex gap-2 data-horizontal:flex-col",
         className
