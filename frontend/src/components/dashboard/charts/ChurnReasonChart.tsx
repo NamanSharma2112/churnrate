@@ -10,7 +10,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
+import { useDashboardStore } from "@/store/dashboard";
+
+// Shown until the tenant has churn events carrying a reason.
+const PLACEHOLDER = [
   { reason: "Price Too High", count: 45 },
   { reason: "Missing Features", count: 32 },
   { reason: "Poor Support", count: 28 },
@@ -19,6 +22,9 @@ const data = [
 ];
 
 export function ChurnReasonChart() {
+  const { churnReasons } = useDashboardStore();
+  const data = churnReasons.length ? churnReasons : PLACEHOLDER;
+
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="mb-6">

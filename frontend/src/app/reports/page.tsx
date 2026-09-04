@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { RevenueChart } from "@/components/dashboard/charts/RevenueChart";
 import { DocumentValidationIcon, Download01Icon } from "hugeicons-react";
+import { useDashboardStore } from "@/store/dashboard";
 
 const reports = [
   { id: 1, name: "Q3 Churn Analysis", date: "Oct 1, 2023", size: "2.4 MB" },
@@ -11,6 +13,13 @@ const reports = [
 ];
 
 export default function ReportsPage() {
+  // The revenue chart is store-backed.
+  const { fetchDashboard } = useDashboardStore();
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
   return (
     <div className="p-6 min-h-screen">
       <div className="mb-6 flex items-center justify-between">
@@ -23,7 +32,10 @@ export default function ReportsPage() {
         </button>
       </div>
 
-      <div className="mb-6">
+      {/* RevenueChart is `h-full` and its ResponsiveContainer sizes at 100%,
+          so the wrapper needs a definite height or the chart measures zero
+          and renders nothing. */}
+      <div className="mb-6 h-[420px]">
         <RevenueChart />
       </div>
 

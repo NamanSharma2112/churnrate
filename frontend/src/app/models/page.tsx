@@ -1,10 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { FeatureImportanceChart } from "@/components/dashboard/charts/FeatureImportanceChart";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TickDouble02Icon, Target01Icon, Analytics01Icon } from "hugeicons-react";
+import { useDashboardStore } from "@/store/dashboard";
 
 export default function ModelsPage() {
+  // Feature importance is averaged from stored predictions.
+  const { fetchFeatureImportance } = useDashboardStore();
+
+  useEffect(() => {
+    fetchFeatureImportance();
+  }, [fetchFeatureImportance]);
+
   return (
     <div className="p-6 min-h-screen">
       <div className="mb-6 flex items-center justify-between">

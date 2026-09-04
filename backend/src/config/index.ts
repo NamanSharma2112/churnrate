@@ -21,4 +21,11 @@ export const config = {
     expiry: process.env.JWT_EXPIRY || "7d",
   },
   mlServiceUrl: process.env.ML_SERVICE_URL || "http://localhost:8001",
+  // Customers each plan may track; null means unlimited.
+  planLimits: {
+    free: 1000,
+    starter: 5000,
+    pro: 15000,
+    enterprise: null,
+  } as Record<string, number | null>,
 } as const;

@@ -7,6 +7,10 @@ import type {
   ActivityEvent,
   ChurnTrendPoint,
   RiskDistribution,
+  RevenueData,
+  ChurnReason,
+  FeatureImportance,
+  PlanUsage,
 } from "@/types";
 import {
   dashboardStats,
@@ -15,6 +19,7 @@ import {
   allCustomers,
   churnTrendData,
   riskDistribution,
+  revenueData,
 } from "@/lib/mock-data";
 
 interface DashboardState {
@@ -24,12 +29,18 @@ interface DashboardState {
   activity: ActivityEvent[];
   churnTrend: ChurnTrendPoint[];
   riskDistribution: RiskDistribution[];
+  revenue: RevenueData[];
+  churnReasons: ChurnReason[];
+  featureImportance: FeatureImportance[];
+  usage: PlanUsage | null;
   sidebarOpen: boolean;
   selectedTimeRange: string;
   setSidebarOpen: (open: boolean) => void;
   setSelectedTimeRange: (range: string) => void;
   fetchDashboard: () => Promise<void>;
   fetchCustomers: () => Promise<void>;
+  fetchFeatureImportance: () => Promise<void>;
+  fetchUsage: () => Promise<void>;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -39,6 +50,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   activity: recentActivity,
   churnTrend: churnTrendData,
   riskDistribution: riskDistribution,
+  revenue: revenueData,
+  churnReasons: [],
+  featureImportance: [],
+  usage: null,
   sidebarOpen: true,
   selectedTimeRange: "30d",
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
@@ -49,14 +64,23 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       const headers = { Authorization: `Bearer ${token}` };
 
       // Each dashboard panel is backed by its own endpoint.
-      const [statsRes, atRiskRes, riskRes, activityRes, trendRes] =
-        await Promise.all([
-          fetch(`${API_BASE}/api/dashboard/stats`, { headers }),
-          fetch(`${API_BASE}/api/dashboard/at-risk`, { headers }),
-          fetch(`${API_BASE}/api/dashboard/risk-distribution`, { headers }),
-          fetch(`${API_BASE}/api/dashboard/activity`, { headers }),
-          fetch(`${API_BASE}/api/dashboard/churn-trend`, { headers }),
-        ]);
+      const [
+        statsRes,
+        atRiskRes,
+        riskRes,
+        activityRes,
+        trendRes,
+        revenueRes,
+        reasonsRes,
+      ] = await Promise.all([
+        fetch(`${API_BASE}/api/dashboard/stats`, { headers }),
+        fetch(`${API_BASE}/api/dashboard/at-risk`, { headers }),
+        fetch(`${API_BASE}/api/dashboard/risk-distribution`, { headers }),
+        fetch(`${API_BASE}/api/dashboard/activity`, { headers }),
+        fetch(`${API_BASE}/api/dashboard/churn-trend`, { headers }),
+        fetch(`${API_BASE}/api/dashboard/revenue`, { headers }),
+        fetch(`${API_BASE}/api/dashboard/churn-reasons`, { headers }),
+      ]);
 
       if (statsRes.ok) {
         const data = await statsRes.json();
@@ -85,8 +109,46 @@ export const useDashboardStore = create<DashboardState>((set) => ({
           set({ churnTrend: data.data });
         }
       }
+      if (revenueRes.ok) {
+        const data = await revenueRes.json();
+        if (data.data?.length) {
+          set({ revenue: data.data });
+        }
+      }
+      if (reasonsRes.ok) {
+        const data = await reasonsRes.json();
+        set({ churnReasons: data.reasons ?? [] });
+      }
     } catch {
       // Use mock data as fallback
+    }
+  },
+  fetchFeatureImportance: async () => {
+    try {
+      const token = useAuthStore.getState().token;
+      const res = await fetch(`${API_BASE}/api/predictions/feature-importance`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set({ featureImportance: data.features ?? [] });
+      }
+    } catch {
+      console.error("Failed to fetch feature importance");
+    }
+  },
+  fetchUsage: async () => {
+    try {
+      const token = useAuthStore.getState().token;
+      const res = await fetch(`${API_BASE}/api/dashboard/usage`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set({ usage: data.usage ?? null });
+      }
+    } catch {
+      console.error("Failed to fetch plan usage");
     }
   },
   fetchCustomers: async () => {

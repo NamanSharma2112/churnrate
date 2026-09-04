@@ -10,7 +10,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
+import { useDashboardStore } from "@/store/dashboard";
+
+// Shown until the tenant has scored predictions to average.
+const PLACEHOLDER = [
   { feature: "Usage Drop (>30%)", importance: 0.85 },
   { feature: "Support Tickets", importance: 0.62 },
   { feature: "NPS Score", importance: 0.55 },
@@ -19,6 +22,9 @@ const data = [
 ];
 
 export function FeatureImportanceChart() {
+  const { featureImportance } = useDashboardStore();
+  const data = featureImportance.length ? featureImportance : PLACEHOLDER;
+
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="mb-6">

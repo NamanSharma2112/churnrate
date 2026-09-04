@@ -86,6 +86,44 @@ async function seed() {
     });
   }
 
+  // Predictions carry the factor weights the ML Models page aggregates into
+  // feature importance, so score a slice of the base.
+  const featurePool = [
+    { feature: "usage_drop", base: 0.82 },
+    { feature: "health_score", base: 0.68 },
+    { feature: "support_tickets", base: 0.55 },
+    { feature: "days_since_active", base: 0.47 },
+    { feature: "login_frequency", base: 0.39 },
+    { feature: "mrr", base: 0.28 },
+  ];
+
+  for (const customer of customers.slice(0, 30)) {
+    await prisma.prediction.create({
+      data: {
+        customerId: customer.id,
+        probability: customer.churnRisk,
+        riskLevel: customer.riskLevel,
+        modelVersion: "seed-v1",
+        topFactors: featurePool.map((f) => ({
+          feature: f.feature,
+          // Jitter each weight so the averages are not identical.
+          impact: parseFloat(
+            Math.min(0.99, Math.max(0.05, f.base + (Math.random() - 0.5) * 0.18)).toFixed(2)
+          ),
+        })),
+      },
+    });
+  }
+
+  // Churn reasons are read from event metadata by /api/dashboard/churn-reasons.
+  const churnReasons = [
+    "Price Too High",
+    "Missing Features",
+    "Poor Support",
+    "Switched to Competitor",
+    "Company Closed",
+  ];
+
   const eventTypes = ["churn", "signup", "upgrade", "downgrade", "warning"];
   const messages: Record<string, string[]> = {
     churn: ["Customer churned after subscription ended", "Customer canceled plan"],
@@ -105,13 +143,45 @@ async function seed() {
         message: msgs[Math.floor(Math.random() * msgs.length)],
         customerId: customer.id,
         tenantId: tenant.id,
+        metadata:
+          type === "churn"
+            ? { reason: churnReasons[Math.floor(Math.random() * churnReasons.length)] }
+            : {},
         createdAt: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)),
       },
     });
   }
 
+  // A wider run of historical churn events so the reason breakdown has shape.
+  // Weights make the distribution look like a real cancellation survey.
+  const reasonWeights = [35, 26, 20, 13, 6];
+  let churnEvents = 0;
+  for (let i = 0; i < 100; i++) {
+    let roll = Math.random() * reasonWeights.reduce((a, b) => a + b, 0);
+    let idx = 0;
+    while (idx < reasonWeights.length - 1 && roll > reasonWeights[idx]) {
+      roll -= reasonWeights[idx];
+      idx += 1;
+    }
+
+    const customer = customers[Math.floor(Math.random() * customers.length)];
+    await prisma.event.create({
+      data: {
+        type: "churn",
+        message: messages.churn[Math.floor(Math.random() * messages.churn.length)],
+        customerId: customer.id,
+        tenantId: tenant.id,
+        metadata: { reason: churnReasons[idx] },
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 180 * 24 * 60 * 60 * 1000)),
+      },
+    });
+    churnEvents += 1;
+  }
+
   console.log("Seeding complete!");
-  console.log(`Created: 1 tenant, 1 user, ${customers.length} customers, ${months.length} metrics, 20 events`);
+  console.log(
+    `Created: 1 tenant, 1 user, ${customers.length} customers, ${months.length} metrics, 30 predictions, ${20 + churnEvents} events`
+  );
   console.log("Login: admin@churnrate.com / password123");
 }
 

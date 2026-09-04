@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../config/database.js";
 import { authenticate } from "../middleware/auth.js";
+import { config } from "../config/index.js";
 
 const router = Router();
 
@@ -133,6 +134,95 @@ router.get("/activity", async (req, res) => {
     });
   } catch (err) {
     console.error("Activity error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/revenue", async (req, res) => {
+  try {
+    const tenantId = req.user!.tenantId;
+    const metrics = await prisma.churnMetric.findMany({
+      where: { tenantId },
+      orderBy: { month: "asc" },
+      take: 12,
+    });
+
+    res.json({
+      data: metrics.map((m) => ({
+        month: m.month,
+        mrr: m.mrr,
+        churnedRevenue: m.churnedRevenue,
+        newRevenue: m.newRevenue,
+      })),
+    });
+  } catch (err) {
+    console.error("Revenue error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/churn-reasons", async (req, res) => {
+  try {
+    const tenantId = req.user!.tenantId;
+    const events = await prisma.event.findMany({
+      where: { tenantId, type: "churn" },
+      select: { metadata: true },
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    });
+
+    // Reasons live in the event metadata, so tally them in memory rather than
+    // trying to group by a JSON key in SQL.
+    const tally = new Map<string, number>();
+    for (const event of events) {
+      const metadata = event.metadata as { reason?: unknown } | null;
+      const reason =
+        typeof metadata?.reason === "string" ? metadata.reason.trim() : "";
+      if (!reason) continue;
+      tally.set(reason, (tally.get(reason) ?? 0) + 1);
+    }
+
+    const reasons = [...tally.entries()]
+      .map(([reason, count]) => ({ reason, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+
+    res.json({ reasons });
+  } catch (err) {
+    console.error("Churn reasons error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/usage", async (req, res) => {
+  try {
+    const tenantId = req.user!.tenantId;
+    const [tenant, customersTracked] = await Promise.all([
+      prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: { name: true, plan: true },
+      }),
+      prisma.customer.count({ where: { tenantId } }),
+    ]);
+
+    const plan = tenant?.plan ?? "free";
+    const limit = config.planLimits[plan] ?? config.planLimits.free;
+
+    res.json({
+      usage: {
+        plan,
+        planLabel: `${plan.charAt(0).toUpperCase()}${plan.slice(1)} Plan`,
+        customersTracked,
+        limit,
+        // null limit means unlimited, so there is no meaningful percentage.
+        percentUsed:
+          limit === null
+            ? null
+            : Math.min(100, Math.round((customersTracked / limit) * 100)),
+      },
+    });
+  } catch (err) {
+    console.error("Usage error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
