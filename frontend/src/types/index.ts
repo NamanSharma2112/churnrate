@@ -72,6 +72,25 @@ export interface RevenueData {
   newRevenue: number;
 }
 
+export interface ChurnReason {
+  reason: string;
+  count: number;
+}
+
+export interface FeatureImportance {
+  feature: string;
+  importance: number;
+}
+
+export interface PlanUsage {
+  plan: string;
+  planLabel: string;
+  customersTracked: number;
+  /** null means the plan has no cap. */
+  limit: number | null;
+  percentUsed: number | null;
+}
+
 export interface ActivityEvent {
   id: string;
   type: "churn" | "signup" | "upgrade" | "downgrade" | "warning";

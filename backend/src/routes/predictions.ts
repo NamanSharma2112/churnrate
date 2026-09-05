@@ -77,6 +77,66 @@ router.post("/batch", async (req, res) => {
   }
 });
 
+// Human-readable names for the raw feature keys the model reports.
+const FEATURE_LABELS: Record<string, string> = {
+  health_score: "Health Score",
+  days_since_active: "Days Since Active",
+  days_since_signup: "Tenure",
+  mrr: "Monthly Revenue",
+  plan: "Plan Tier",
+  support_tickets: "Support Tickets",
+  login_frequency: "Login Frequency",
+  usage_drop: "Usage Drop",
+};
+
+router.get("/feature-importance", async (req, res) => {
+  try {
+    const tenantId = req.user!.tenantId;
+
+    // topFactors is stored per prediction, so average each feature's impact
+    // across the tenant's recent predictions.
+    const predictions = await prisma.prediction.findMany({
+      where: { customer: { tenantId } },
+      select: { topFactors: true },
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    });
+
+    const totals = new Map<string, { sum: number; count: number }>();
+    for (const prediction of predictions) {
+      const factors = prediction.topFactors;
+      if (!Array.isArray(factors)) continue;
+
+      for (const factor of factors) {
+        if (typeof factor !== "object" || factor === null) continue;
+        const { feature, impact } = factor as {
+          feature?: unknown;
+          impact?: unknown;
+        };
+        if (typeof feature !== "string" || typeof impact !== "number") continue;
+
+        const entry = totals.get(feature) ?? { sum: 0, count: 0 };
+        entry.sum += Math.abs(impact);
+        entry.count += 1;
+        totals.set(feature, entry);
+      }
+    }
+
+    const features = [...totals.entries()]
+      .map(([feature, { sum, count }]) => ({
+        feature: FEATURE_LABELS[feature] ?? feature,
+        importance: parseFloat((sum / count).toFixed(3)),
+      }))
+      .sort((a, b) => b.importance - a.importance)
+      .slice(0, 8);
+
+    res.json({ features, sampleSize: predictions.length });
+  } catch (err) {
+    console.error("Feature importance error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.get("/history/:customerId", async (req, res) => {
   try {
     const customerId = req.params.customerId as string;
