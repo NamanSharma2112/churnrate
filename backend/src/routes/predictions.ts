@@ -4,7 +4,8 @@ import { prisma } from "../config/database.js";
 import { authenticate } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { config } from "../config/index.js";
-import type { MLPrediction } from "../types/index.js";
+import { predictOne, buildFeatures } from "../services/churn-scoring.js";
+import { scoreAndPersist } from "../services/scoring-runner.js";
 
 const router = Router();
 
@@ -26,48 +27,7 @@ router.post("/predict", validate(predictSchema), async (req, res) => {
       return;
     }
 
-    let prediction: MLPrediction | null = null;
-    try {
-      const mlResponse = await fetch(`${config.mlServiceUrl}/api/predict`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer_id: customer.id,
-          features: {
-            mrr: customer.mrr,
-            health_score: customer.healthScore,
-            plan: customer.plan,
-            days_since_signup: Math.floor(
-              (Date.now() - new Date(customer.signupDate).getTime()) /
-                (1000 * 60 * 60 * 24)
-            ),
-            days_since_active: Math.floor(
-              (Date.now() - new Date(customer.lastActiveAt).getTime()) /
-                (1000 * 60 * 60 * 24)
-            ),
-          },
-        }),
-      });
-
-      if (mlResponse.ok) {
-        prediction = await mlResponse.json() as MLPrediction;
-      }
-    } catch {
-      // ML service unavailable, use fallback
-    }
-
-    if (!prediction) {
-      const risk = Math.random() * 0.5 + (customer.healthScore < 40 ? 0.5 : 0);
-      prediction = {
-        probability: parseFloat(risk.toFixed(2)),
-        risk_level: risk > 0.8 ? "critical" : risk > 0.6 ? "high" : risk > 0.4 ? "medium" : "low",
-        top_factors: [
-          { feature: "health_score", impact: 0.35 },
-          { feature: "days_since_active", impact: 0.25 },
-          { feature: "mrr", impact: 0.2 },
-        ],
-      };
-    }
+    const prediction = await predictOne(customer);
 
     const saved = await prisma.prediction.create({
       data: {
@@ -75,6 +35,7 @@ router.post("/predict", validate(predictSchema), async (req, res) => {
         probability: prediction.probability,
         riskLevel: prediction.risk_level,
         topFactors: prediction.top_factors,
+        modelVersion: prediction.model_version ?? null,
       },
     });
 
@@ -86,24 +47,29 @@ router.post("/predict", validate(predictSchema), async (req, res) => {
       },
     });
 
-    res.json({ prediction: saved });
+    res.json({ prediction: saved, features: buildFeatures(customer) });
   } catch (err) {
     console.error("Prediction error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
+/**
+ * Scores every customer in the tenant. Runs inline rather than returning a fake
+ * job id, so the caller knows the work actually happened.
+ */
 router.post("/batch", async (req, res) => {
   try {
-    const customers = await prisma.customer.findMany({
-      where: { tenantId: req.user!.tenantId },
-      select: { id: true },
-    });
+    const result = await scoreAndPersist(req.user!.tenantId);
 
     res.json({
-      jobId: `batch-${Date.now()}`,
-      message: `Batch prediction queued for ${customers.length} customers`,
-      customerCount: customers.length,
+      message:
+        result.scored === 0
+          ? "No customers to score yet — import your data first"
+          : `Scored ${result.scored} customer${result.scored === 1 ? "" : "s"}`,
+      scored: result.scored,
+      atRisk: result.atRisk,
+      modelVersion: result.modelVersion,
     });
   } catch (err) {
     console.error("Batch prediction error:", err);
@@ -174,6 +140,18 @@ router.get("/feature-importance", async (req, res) => {
 router.get("/history/:customerId", async (req, res) => {
   try {
     const customerId = req.params.customerId as string;
+
+    // Scope the lookup to the tenant so ids cannot be probed across accounts.
+    const customer = await prisma.customer.findFirst({
+      where: { id: customerId, tenantId: req.user!.tenantId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      res.status(404).json({ message: "Customer not found" });
+      return;
+    }
+
     const predictions = await prisma.prediction.findMany({
       where: { customerId },
       orderBy: { createdAt: "desc" },
@@ -183,6 +161,87 @@ router.get("/history/:customerId", async (req, res) => {
     res.json({ predictions });
   } catch (err) {
     console.error("Prediction history error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/** Model metadata for the ML Models page — real numbers, not hard-coded ones. */
+router.get("/model/info", async (req, res) => {
+  try {
+    const tenantId = req.user!.tenantId;
+
+    let service: Record<string, unknown> | null = null;
+    try {
+      const response = await fetch(`${config.mlServiceUrl}/api/model/info`, {
+        signal: AbortSignal.timeout(5000),
+      });
+      if (response.ok) service = (await response.json()) as Record<string, unknown>;
+    } catch {
+      // Service down — reported as offline below.
+    }
+
+    const [total, scored, latest] = await Promise.all([
+      prisma.customer.count({ where: { tenantId } }),
+      // Counted by "has a stored prediction", not "churnRisk > 0" — a genuinely
+      // healthy customer scores 0.0000 and was being reported as unscored.
+      prisma.customer.count({ where: { tenantId, predictions: { some: {} } } }),
+      prisma.prediction.findFirst({
+        where: { customer: { tenantId } },
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true, modelVersion: true },
+      }),
+    ]);
+
+    res.json({
+      online: service !== null,
+      version: (service?.version as string) ?? latest?.modelVersion ?? null,
+      metrics: (service?.metrics as Record<string, number>) ?? null,
+      coverage: {
+        totalCustomers: total,
+        scoredCustomers: scored,
+        lastRunAt: latest?.createdAt ?? null,
+      },
+    });
+  } catch (err) {
+    console.error("Model info error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/** Feature importance for the ML Models page. */
+router.get("/feature-importance", async (req, res) => {
+  try {
+    const predictions = await prisma.prediction.findMany({
+      where: { customer: { tenantId: req.user!.tenantId } },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      select: { topFactors: true },
+    });
+
+    // Average the per-customer factors so the chart reflects this tenant's data.
+    const totals = new Map<string, { sum: number; count: number }>();
+    for (const row of predictions) {
+      const factors = row.topFactors as { feature: string; impact: number }[] | null;
+      if (!Array.isArray(factors)) continue;
+      for (const factor of factors) {
+        const entry = totals.get(factor.feature) ?? { sum: 0, count: 0 };
+        entry.sum += Math.abs(factor.impact);
+        entry.count += 1;
+        totals.set(factor.feature, entry);
+      }
+    }
+
+    const features = Array.from(totals.entries())
+      .map(([feature, { sum, count }]) => ({
+        feature,
+        importance: Math.round((sum / count) * 1000) / 1000,
+      }))
+      .sort((a, b) => b.importance - a.importance)
+      .slice(0, 8);
+
+    res.json({ features });
+  } catch (err) {
+    console.error("Feature importance error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });

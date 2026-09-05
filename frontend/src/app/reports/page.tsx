@@ -1,69 +1,150 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RevenueChart } from "@/components/dashboard/charts/RevenueChart";
-import { DocumentValidationIcon, Download01Icon } from "hugeicons-react";
+import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useDashboardStore } from "@/store/dashboard";
+import { DocumentValidationIcon, Download01Icon } from "hugeicons-react";
 
-const reports = [
-  { id: 1, name: "Q3 Churn Analysis", date: "Oct 1, 2023", size: "2.4 MB" },
-  { id: 2, name: "Monthly Revenue Impact", date: "Sep 30, 2023", size: "1.1 MB" },
-  { id: 3, name: "At-Risk Customer Cohort", date: "Sep 28, 2023", size: "3.5 MB" },
-  { id: 4, name: "Annual Retention Summary", date: "Jan 5, 2023", size: "5.2 MB" },
-];
+/** Turns the in-memory customer list into a CSV the browser can save. */
+function toCsv(rows: Record<string, unknown>[]): string {
+  if (rows.length === 0) return "";
+  const headers = Object.keys(rows[0]);
+  const escape = (value: unknown) => {
+    const text = value === null || value === undefined ? "" : String(value);
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+  return [
+    headers.join(","),
+    ...rows.map((row) => headers.map((header) => escape(row[header])).join(",")),
+  ].join("\n");
+}
 
 export default function ReportsPage() {
-  // The revenue chart is store-backed.
-  const { fetchDashboard } = useDashboardStore();
+  const { customers, atRiskCustomers, fetchDashboard, fetchCustomers } =
+    useDashboardStore();
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboard();
-  }, [fetchDashboard]);
+    fetchCustomers();
+  }, [fetchDashboard, fetchCustomers]);
+
+  // Reports are generated from live data and downloaded client-side, replacing
+  // the previous list of fabricated PDF entries.
+  const download = (name: string, rows: Record<string, unknown>[]) => {
+    setDownloading(name);
+    try {
+      const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${name}-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  const reports = [
+    {
+      id: "all-customers",
+      name: "Customer export",
+      description: "Every account with plan, MRR, health score and churn risk",
+      rows: customers.map((c) => ({
+        company: c.company ?? "",
+        name: c.name,
+        email: c.email,
+        plan: c.plan,
+        mrr: c.mrr,
+        healthScore: c.healthScore,
+        churnRisk: c.churnRisk,
+        riskLevel: c.riskLevel ?? "",
+        signupDate: c.signupDate,
+        lastActiveAt: c.lastActiveAt ?? "",
+      })),
+    },
+    {
+      id: "at-risk",
+      name: "At-risk accounts",
+      description: "High and critical risk accounts, ranked by churn probability",
+      rows: atRiskCustomers.map((c) => ({
+        company: c.company ?? "",
+        name: c.name,
+        email: c.email,
+        mrr: c.mrr,
+        churnRisk: c.churnRisk,
+        riskLevel: c.riskLevel ?? "",
+        healthScore: c.healthScore,
+        lastActiveAt: c.lastActiveAt ?? "",
+      })),
+    },
+  ];
 
   return (
-    <div className="p-6 min-h-screen">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-800">Reports</h1>
-          <p className="text-sm text-neutral-500">Generate and view automated churn reports</p>
-        </div>
-        <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 shadow-sm">
-          Generate New Report
-        </button>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Reports"
+        description="Export your churn data for sharing or deeper analysis"
+      />
 
-      {/* RevenueChart is `h-full` and its ResponsiveContainer sizes at 100%,
-          so the wrapper needs a definite height or the chart measures zero
-          and renders nothing. */}
-      <div className="mb-6 h-[420px]">
+      <div className="mb-4 sm:mb-6">
         <RevenueChart />
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
-        <div className="border-b border-neutral-200 p-5">
-          <h3 className="text-lg font-semibold text-neutral-800">Recent Reports</h3>
-          <p className="text-sm text-neutral-500">Download previously generated reports</p>
+      <div className="panel">
+        <div className="border-b border-neutral-200 p-4 sm:p-5">
+          <h3 className="text-base font-semibold text-neutral-900">Available reports</h3>
+          <p className="mt-0.5 text-sm text-neutral-500">
+            Generated from your current data, downloaded as CSV
+          </p>
         </div>
-        <div className="divide-y divide-neutral-100">
-          {reports.map((report) => (
-            <div key={report.id} className="flex items-center justify-between p-5 transition-colors hover:bg-neutral-50">
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                  <DocumentValidationIcon size={20} />
+
+        {customers.length === 0 ? (
+          <EmptyState
+            icon={DocumentValidationIcon}
+            title="Nothing to report yet"
+            description="Import customer data and your exports will appear here."
+            actionLabel="Import data"
+            actionHref="/import"
+          />
+        ) : (
+          <div className="divide-y divide-neutral-100">
+            {reports.map((report) => (
+              <div
+                key={report.id}
+                className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-neutral-50 sm:px-5"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                    <DocumentValidationIcon size={20} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-neutral-900">{report.name}</p>
+                    <p className="text-xs text-neutral-500">
+                      {report.description} · {report.rows.length} row
+                      {report.rows.length === 1 ? "" : "s"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-neutral-800">{report.name}</p>
-                  <p className="text-xs text-neutral-500">{report.date} • {report.size}</p>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => download(report.id, report.rows)}
+                  disabled={report.rows.length === 0 || downloading === report.id}
+                  className="flex shrink-0 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 disabled:opacity-50"
+                >
+                  <Download01Icon size={16} />
+                  Download CSV
+                </button>
               </div>
-              <button className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-50 shadow-sm">
-                <Download01Icon size={16} />
-                Download PDF
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

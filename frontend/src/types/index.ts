@@ -2,14 +2,17 @@ export interface Customer {
   id: string;
   name: string;
   email: string;
-  company: string;
-  plan: "free" | "starter" | "pro" | "enterprise";
+  /** Optional: plenty of exports carry a contact but no company. */
+  company: string | null;
+  plan: string;
   mrr: number;
   churnRisk: number;
-  lastActive: string;
+  lastActive?: string;
   signupDate: string;
   healthScore: number;
-  engagementTrend: "up" | "down" | "stable";
+  engagementTrend: string;
+  /** Per-customer risk factors returned by the model. */
+  topFactors?: { feature: string; label?: string; impact: number; direction?: string }[];
   // Returned by the API (mock records only carry the display-only `lastActive`).
   lastActiveAt?: string;
   riskLevel?: "low" | "medium" | "high" | "critical";
@@ -42,6 +45,17 @@ export interface ChurnTrendPoint {
   month: string;
   churnRate: number;
   predicted: number;
+}
+
+export interface ImportBatch {
+  id: string;
+  source: string;
+  fileName: string | null;
+  rowCount: number;
+  imported: number;
+  updated: number;
+  skipped: number;
+  createdAt: string;
 }
 
 export interface RiskDistribution {
@@ -90,6 +104,7 @@ export interface Tenant {
   name: string;
   slug: string;
   plan: string;
+  customerCount?: number;
 }
 
 export interface User {

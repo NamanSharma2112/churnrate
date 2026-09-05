@@ -11,11 +11,17 @@ import {
 import { StatCard } from "./StatCard";
 import { useDashboardStore } from "@/store/dashboard";
 
+function formatMoney(value: number): string {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1000) return `$${(value / 1000).toFixed(1)}k`;
+  return `$${Math.round(value).toLocaleString()}`;
+}
+
 export function StatsGrid() {
   const { stats } = useDashboardStore();
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
       <StatCard
         title="Total Customers"
         value={stats.totalCustomers.toLocaleString()}
@@ -36,20 +42,22 @@ export function StatsGrid() {
         change={stats.churnRateChange}
         icon={ChartDecreaseIcon}
         iconColor="#ef4444"
+        inverse
       />
       <StatCard
         title="MRR"
-        value={`$${(stats.mrr / 1000).toFixed(1)}k`}
+        value={formatMoney(stats.mrr)}
         change={stats.mrrChange}
         icon={DollarCircleIcon}
         iconColor="#f59e0b"
       />
       <StatCard
         title="At-Risk"
-        value={stats.atRiskCustomers.toString()}
+        value={stats.atRiskCustomers.toLocaleString()}
         change={stats.atRiskChange}
         icon={Alert01Icon}
         iconColor="#f97316"
+        inverse
       />
       <StatCard
         title="Health Score"

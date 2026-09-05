@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Mail01Icon, LockKeyIcon, UserIcon, Building04Icon } from "hugeicons-react";
 import { useAuthStore } from "@/store/auth";
 import { API_BASE } from "@/lib/api";
-import { Mail01Icon, LockKeyIcon, ViewIcon, UserIcon, Building04Icon } from "hugeicons-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
+import { FormField, FormError, SubmitButton } from "@/components/auth/FormField";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,11 +18,17 @@ export default function RegisterPage() {
   const [tenantName, setTenantName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
+
+    // Matches the API's rule, caught here so the user is not round-tripped.
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -38,113 +45,90 @@ export default function RegisterPage() {
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.message || "Failed to register");
+        const detail = Array.isArray(data.errors) && data.errors.length > 0
+          ? data.errors.map((e: { message: string }) => e.message).join(". ")
+          : null;
+        throw new Error(detail || data.message || "Could not create your account");
       }
 
-      login(data.token, data.user);
-      router.push("/");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred");
-      }
+      login(data.token, data.user, data.tenant);
+      router.replace("/dashboard");
+    } catch (err) {
+      setError(
+        err instanceof TypeError
+          ? "Cannot reach the server. Check that the API is running."
+          : err instanceof Error
+            ? err.message
+            : "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthLayout currentType="register">
+    <AuthLayout
+      currentType="register"
+      title="Create your workspace"
+      subtitle="Start scoring your customers in a couple of minutes."
+    >
       <form onSubmit={handleSubmit} className="space-y-5">
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 shadow-sm">
-            {error}
-          </div>
-        )}
-        
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-teal-800">
-              Full Name <span className="text-teal-600">*</span>
-            </label>
-            <div className="relative">
-              <UserIcon size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-11 w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-4 text-sm focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600"
-                placeholder="Jane Doe"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-teal-800">
-              Work Email <span className="text-teal-600">*</span>
-            </label>
-            <div className="relative">
-              <Mail01Icon size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-11 w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-4 text-sm focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600"
-                placeholder="jane@company.com"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-teal-800">
-              Workspace Name <span className="text-neutral-400 font-normal">(Optional)</span>
-            </label>
-            <div className="relative">
-              <Building04Icon size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input
-                type="text"
-                value={tenantName}
-                onChange={(e) => setTenantName(e.target.value)}
-                className="h-11 w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-4 text-sm focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600"
-                placeholder="Acme Corp"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-teal-800">
-              Password <span className="text-teal-600">*</span>
-            </label>
-            <div className="relative">
-              <LockKeyIcon size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input
-                type={showPassword ? "text" : "password"}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-11 w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-10 text-sm focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600"
-                placeholder="Enter your password"
-              />
-              <button 
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-              >
-                <ViewIcon size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
+        {error && <FormError message={error} />}
 
-        <Button type="submit" className="h-11 w-full rounded-lg bg-teal-600 font-medium text-white shadow-sm hover:bg-teal-700 transition-all" disabled={loading}>
-          {loading ? "Creating account..." : "Sign Up"}
-        </Button>
+        <FormField
+          label="Full name"
+          icon={UserIcon}
+          value={name}
+          onChange={setName}
+          placeholder="Jane Doe"
+          autoComplete="name"
+          minLength={2}
+        />
 
+        <FormField
+          label="Work email"
+          type="email"
+          icon={Mail01Icon}
+          value={email}
+          onChange={setEmail}
+          placeholder="jane@company.com"
+          autoComplete="email"
+        />
+
+        <FormField
+          label="Workspace name"
+          icon={Building04Icon}
+          value={tenantName}
+          onChange={setTenantName}
+          placeholder="Acme Corp"
+          autoComplete="organization"
+          optional
+          hint="Defaults to your name if left blank."
+        />
+
+        <FormField
+          label="Password"
+          type="password"
+          icon={LockKeyIcon}
+          value={password}
+          onChange={setPassword}
+          placeholder="At least 8 characters"
+          autoComplete="new-password"
+          minLength={8}
+        />
+
+        <SubmitButton loading={loading} loadingLabel="Creating account…">
+          Create account
+        </SubmitButton>
+
+        <p className="text-center text-sm text-neutral-500">
+          Already have an account?{" "}
+          <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-700">
+            Sign in
+          </Link>
+        </p>
       </form>
     </AuthLayout>
   );

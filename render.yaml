@@ -1,0 +1,51 @@
+# Render blueprint: deploys the API, the ML service and a managed Postgres.
+# Create via Render → New → Blueprint, pointed at this repository.
+#
+# After the first deploy, set CORS_ORIGINS on `churnrate-api` to your frontend
+# URL — it is left blank here because the value depends on where you host it.
+services:
+  - type: web
+    name: churnrate-api
+    runtime: node
+    plan: starter
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:migrate
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: churnrate-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: churnrate-ml
+          property: hostport
+      # Set this to your deployed frontend origin, e.g.
+      # https://churnrate.vercel.app — comma-separate multiple origins.
+      - key: CORS_ORIGINS
+        sync: false
+
+  - type: web
+    name: churnrate-ml
+    runtime: python
+    plan: starter
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+
+databases:
+  - name: churnrate-db
+    plan: basic-256mb
+    postgresMajorVersion: "16"

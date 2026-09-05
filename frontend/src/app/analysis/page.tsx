@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { useDashboardStore } from "@/store/dashboard";
 import { ChurnTrendChart } from "@/components/dashboard/charts/ChurnTrendChart";
 import { RiskDistributionChart } from "@/components/dashboard/charts/RiskDistributionChart";
 import { ChurnReasonChart } from "@/components/dashboard/charts/ChurnReasonChart";
-import { useDashboardStore } from "@/store/dashboard";
+import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 
 export default function AnalysisPage() {
-  // These charts read from the dashboard store, which holds mock data until
-  // something fetches — without this the page shows figures that contradict
-  // the real customer base.
+  // Every page that renders dashboard data now loads it; the analysis and
+  // at-risk pages previously rendered whatever happened to be in the store.
   const { fetchDashboard } = useDashboardStore();
 
   useEffect(() => {
@@ -17,22 +17,20 @@ export default function AnalysisPage() {
   }, [fetchDashboard]);
 
   return (
-    <div className="p-6 min-h-screen">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-800">Churn Analysis</h1>
-          <p className="text-sm text-neutral-500">In-depth analytics on churn factors</p>
-        </div>
-      </div>
-      
-      <div className="mb-6">
+    <PageContainer>
+      <PageHeader
+        title="Churn Analysis"
+        description="In-depth analytics on what drives churn in your customer base"
+      />
+
+      <div className="mb-4 sm:mb-6">
         <ChurnTrendChart />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2">
         <RiskDistributionChart />
         <ChurnReasonChart />
       </div>
-    </div>
+    </PageContainer>
   );
 }
