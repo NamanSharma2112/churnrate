@@ -54,7 +54,20 @@ Any managed Postgres 16 works. Two quick options:
 **Supabase**
 1. [supabase.com](https://supabase.com) → New project
 2. Settings → Database → Connection string → **URI**
-3. Use the **connection pooler** string (port 6543) if your host is serverless
+3. Take the **Session pooler** string (port **5432**), not the Transaction
+   pooler (port 6543)
+
+   > This matters. The backend boots with `prisma migrate deploy`, and the
+   > transaction pooler does not support the session-level features migrations
+   > need — point `DATABASE_URL` at port 6543 and the service crash-loops on
+   > startup before it ever serves a request. Supabase's *direct* connection
+   > works too, but it is IPv6-only, which Render's free tier cannot reach. The
+   > session pooler is IPv4 and handles both migrations and normal queries.
+
+   What this app needs from Supabase is the **connection string only**. It talks
+   to Postgres through Prisma, so `SUPABASE_URL`, the publishable/secret API
+   keys and the `@supabase/server` package play no part — that is the SDK path
+   for apps using Supabase Auth and PostgREST, which this one does not.
 
 Save the string. It looks like:
 
