@@ -64,7 +64,7 @@ async function getJson<T>(path: string, token: string | null): Promise<T | null>
  * of them on fetch, so a real workspace showed its own customer count next to a
  * fabricated $300k revenue chart and a stranger's activity feed.
  */
-export const useDashboardStore = create<DashboardState>((set) => ({
+export const useDashboardStore = create<DashboardState>((set, get) => ({
   stats: EMPTY_STATS,
   customers: [],
   atRiskCustomers: [],
@@ -79,7 +79,13 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   error: null,
   selectedTimeRange: "30d",
 
-  setSelectedTimeRange: (range) => set({ selectedTimeRange: range }),
+  // Changing the range has to refetch: the window drives what the stat deltas
+  // compare against and how the trend series is bucketed, both server-side.
+  setSelectedTimeRange: (range) => {
+    if (get().selectedTimeRange === range) return;
+    set({ selectedTimeRange: range });
+    void get().fetchDashboard();
+  },
 
   fetchDashboard: async () => {
     const token = useAuthStore.getState().token;
@@ -87,13 +93,16 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
     set({ loading: true, error: null });
 
+    const range = get().selectedTimeRange;
+    const withRange = (path: string) => `${path}?range=${encodeURIComponent(range)}`;
+
     const [stats, atRisk, risk, activity, trend, revenue] = await Promise.all([
-      getJson<{ stats: DashboardStats; hasData: boolean }>("/api/dashboard/stats", token),
+      getJson<{ stats: DashboardStats; hasData: boolean }>(withRange("/api/dashboard/stats"), token),
       getJson<{ customers: Customer[]; atRiskMrr: number }>("/api/dashboard/at-risk", token),
       getJson<{ distribution: RiskDistribution[] }>("/api/dashboard/risk-distribution", token),
       getJson<{ activity: ActivityEvent[] }>("/api/dashboard/activity", token),
-      getJson<{ data: ChurnTrendPoint[] }>("/api/dashboard/churn-trend", token),
-      getJson<{ data: RevenueData[] }>("/api/dashboard/revenue", token),
+      getJson<{ data: ChurnTrendPoint[] }>(withRange("/api/dashboard/churn-trend"), token),
+      getJson<{ data: RevenueData[] }>(withRange("/api/dashboard/revenue"), token),
     ]);
 
     if (!stats) {

@@ -15,6 +15,33 @@ model later.
 
 ---
 
+## The all-free stack
+
+Every piece has a free tier that needs no card. This is the combination to pick
+if cost is the constraint:
+
+| Piece | Host | Free tier |
+| --- | --- | --- |
+| Postgres | **Neon** | 0.5 GB, does not expire |
+| Backend API | **Render** | 512 MB, sleeps after ~15 min idle |
+| ML service | **Render** | 512 MB, sleeps after ~15 min idle |
+| Frontend | **Vercel** | Hobby, no sleep |
+
+`render.yaml` in this repo is already pinned to `plan: free` for both services.
+
+Two caveats worth knowing up front rather than debugging later:
+
+- **Render free services sleep.** The first request after an idle period pays a
+  cold start of roughly 50 seconds. The app is not broken — it is waking up. If
+  you are demoing this, load the page once a minute beforehand.
+- **Render's own free Postgres expires after 30 days.** Neon's does not, which
+  is why the table above uses Neon. If you apply the blueprint as-is you get
+  Render's database and that 30-day clock; to use Neon instead, delete the
+  `databases:` block from `render.yaml` and set `DATABASE_URL` by hand on the
+  `churnrate-api` service.
+
+---
+
 ## Step 1 — Create the database
 
 Any managed Postgres 16 works. Two quick options:
@@ -146,7 +173,8 @@ Then set `ML_SERVICE_URL` on the backend to this service's URL and redeploy the
 backend. Re-check `/api/health` — `mlService` should now read `ok`.
 
 > Give this service at least 512 MB of memory. XGBoost training is the peak, and
-> it will be OOM-killed on a 256 MB instance.
+> it will be OOM-killed on a 256 MB instance. Render's free tier is 512 MB, which
+> fits — but only just, so do not also run anything else in that process.
 
 ---
 
@@ -233,7 +261,9 @@ to a fixed value rather than regenerating it on each deploy. (Render's
 `generateValue: true` only generates once, on first provision.)
 
 **First request after idle is very slow**
-Free tiers sleep. Render's starter plan and Neon's free tier both cold-start.
+Free tiers sleep. A Render free service takes ~50s to wake, and Neon's free tier
+cold-starts too. The first login after a quiet spell will feel broken; the
+second will not. Paid instances remove this.
 
 **Stripe sync returns a network error**
 The backend must be able to reach `api.stripe.com` outbound. Some sandboxed or

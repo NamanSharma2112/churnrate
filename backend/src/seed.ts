@@ -101,6 +101,9 @@ async function seed() {
       data: {
         ...signals,
         id: undefined,
+        // Backdate the row to the signup so seeded history is internally
+        // consistent rather than 50 accounts all created this second.
+        createdAt: new Date(Date.now() - signupDaysAgo * DAY_MS),
         name: `${firstName} ${lastName}`,
         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@${company
           .toLowerCase()
