@@ -1,13 +1,22 @@
-# Render blueprint: deploys the API, the ML service and a managed Postgres.
+# Render blueprint: deploys the API, the ML service and a managed Postgres,
+# entirely on Render's free tier.
+#
 # Create via Render → New → Blueprint, pointed at this repository.
 #
-# After the first deploy, set CORS_ORIGINS on `churnrate-api` to your frontend
-# URL — it is left blank here because the value depends on where you host it.
+# Free-tier caveats worth knowing before you rely on it:
+#   * Free web services sleep after ~15 minutes idle; the next request pays a
+#     ~50s cold start. The frontend surfaces this as a slow first load.
+#   * Free Postgres expires 30 days after creation. Export and recreate, or move
+#     to Supabase/Neon (both have a non-expiring free tier) and set DATABASE_URL
+#     manually instead of using `fromDatabase` below.
+#
+# After the first deploy, set CORS_ORIGINS on `churnrate-api` to your Vercel URL
+# — it is left blank here because the value depends on where you host it.
 services:
   - type: web
     name: churnrate-api
     runtime: node
-    plan: starter
+    plan: free
     rootDir: backend
     buildCommand: npm ci && npm run build
     startCommand: npm run start:migrate
@@ -23,6 +32,8 @@ services:
         generateValue: true
       - key: ENCRYPTION_KEY
         generateValue: true
+      # `hostport` resolves to "host:port" with no scheme. The API prefixes
+      # http:// when one is missing, so this stays a valid URL either way.
       - key: ML_SERVICE_URL
         fromService:
           type: web
@@ -36,7 +47,7 @@ services:
   - type: web
     name: churnrate-ml
     runtime: python
-    plan: starter
+    plan: free
     rootDir: ml-service
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -47,5 +58,5 @@ services:
 
 databases:
   - name: churnrate-db
-    plan: basic-256mb
+    plan: free
     postgresMajorVersion: "16"

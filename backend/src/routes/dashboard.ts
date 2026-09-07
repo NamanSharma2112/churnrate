@@ -14,6 +14,67 @@ function monthKey(date: Date): string {
   return date.toLocaleString("en-US", { month: "short" });
 }
 
+function dayKey(date: Date): string {
+  return date.toLocaleString("en-US", { month: "short", day: "numeric" });
+}
+
+/**
+ * The dashboard's 7d/30d/90d/1y selector. Each range fixes both the window the
+ * stat deltas compare against and the buckets the trend charts are built from,
+ * so picking a range actually changes what the page shows.
+ *
+ * `bucketDays: 0` means calendar months, which do not have a fixed length.
+ */
+interface RangeSpec {
+  key: string;
+  days: number;
+  buckets: number;
+  bucketDays: number;
+}
+
+const RANGES: Record<string, RangeSpec> = {
+  "7d": { key: "7d", days: 7, buckets: 7, bucketDays: 1 },
+  "30d": { key: "30d", days: 30, buckets: 15, bucketDays: 2 },
+  "90d": { key: "90d", days: 91, buckets: 13, bucketDays: 7 },
+  "1y": { key: "1y", days: 365, buckets: 12, bucketDays: 0 },
+};
+
+const DEFAULT_RANGE = RANGES["1y"]!;
+
+function resolveRange(raw: unknown): RangeSpec {
+  return (typeof raw === "string" ? RANGES[raw] : undefined) ?? DEFAULT_RANGE;
+}
+
+interface Bucket {
+  start: Date;
+  end: Date;
+  label: string;
+}
+
+function bucketsFor(spec: RangeSpec, now = new Date()): Bucket[] {
+  const buckets: Bucket[] = [];
+
+  if (spec.bucketDays === 0) {
+    for (let i = spec.buckets - 1; i >= 0; i--) {
+      const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      buckets.push({ start, end, label: monthKey(start) });
+    }
+    return buckets;
+  }
+
+  // Anchor to midnight tonight so the newest bucket is a whole day rather than
+  // a partial one — a half-elapsed bucket reads as a cliff on every chart.
+  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const span = spec.bucketDays * DAY_MS;
+  for (let i = spec.buckets - 1; i >= 0; i--) {
+    const end = new Date(endOfToday.getTime() - i * span);
+    const start = new Date(end.getTime() - span);
+    buckets.push({ start, end, label: dayKey(start) });
+  }
+  return buckets;
+}
+
 /**
  * Percentage change helpers. Every "change" figure the dashboard shows is
  * computed against the previous period rather than hard-coded.
@@ -26,10 +87,13 @@ function pctChange(current: number, previous: number): number {
 router.get("/stats", async (req, res) => {
   try {
     const tenantId = req.user!.tenantId;
+    const range = resolveRange(req.query.range);
     const now = Date.now();
     const activeCutoff = new Date(now - ACTIVE_WINDOW_DAYS * DAY_MS);
-    const periodStart = new Date(now - 30 * DAY_MS);
-    const previousStart = new Date(now - 60 * DAY_MS);
+    // The selected range is the period under review; the equally long span
+    // before it is the baseline every "change" figure is measured against.
+    const periodStart = new Date(now - range.days * DAY_MS);
+    const previousStart = new Date(now - 2 * range.days * DAY_MS);
 
     const [customers, previousCustomerCount] = await Promise.all([
       prisma.customer.findMany({
@@ -40,10 +104,10 @@ router.get("/stats", async (req, res) => {
           churnRisk: true,
           riskLevel: true,
           lastActiveAt: true,
-          createdAt: true,
+          signupDate: true,
         },
       }),
-      prisma.customer.count({ where: { tenantId, createdAt: { lt: periodStart } } }),
+      prisma.customer.count({ where: { tenantId, signupDate: { lt: periodStart } } }),
     ]);
 
     const totalCustomers = customers.length;
@@ -60,10 +124,15 @@ router.get("/stats", async (req, res) => {
     const churnRate =
       totalCustomers > 0 ? ((totalCustomers - activeCustomers) / totalCustomers) * 100 : 0;
 
-    // Previous-period baselines, derived from the same records.
-    const previousCohort = customers.filter((c) => c.createdAt < periodStart);
+    // Previous-period baselines, derived from the same records: the accounts
+    // that already existed when the period began, judged as of that moment.
+    //
+    // Keyed on signupDate, not createdAt: createdAt is when the row was written,
+    // so a freshly imported book of business would look entirely brand new and
+    // report a flat +100% against an empty baseline on every stat.
+    const previousCohort = customers.filter((c) => c.signupDate < periodStart);
     const previousActive = previousCohort.filter(
-      (c) => c.lastActiveAt > new Date(now - 60 * DAY_MS)
+      (c) => c.lastActiveAt > new Date(periodStart.getTime() - ACTIVE_WINDOW_DAYS * DAY_MS)
     ).length;
     const previousMrr = previousCohort.reduce((sum, c) => sum + c.mrr, 0);
     const previousHealth =
@@ -77,8 +146,6 @@ router.get("/stats", async (req, res) => {
     const previousAtRisk = previousCohort.filter(
       (c) => c.riskLevel === "high" || c.riskLevel === "critical"
     ).length;
-
-    void previousStart;
 
     res.json({
       stats: {
@@ -95,6 +162,9 @@ router.get("/stats", async (req, res) => {
         avgHealthScore: Math.round(avgHealth),
         avgHealthScoreChange: Math.round((avgHealth - previousHealth) * 10) / 10,
       },
+      range: range.key,
+      periodStart: periodStart.toISOString(),
+      previousPeriodStart: previousStart.toISOString(),
       // Lets the UI show an onboarding state instead of a wall of zeros.
       hasData: totalCustomers > 0,
     });
@@ -105,30 +175,36 @@ router.get("/stats", async (req, res) => {
 });
 
 /**
- * Twelve-month churn trend. Uses stored ChurnMetric rows when a tenant has them
- * and otherwise derives the series from customer activity, so the chart always
- * reflects real data rather than a mock series.
+ * Churn trend over the selected range. Uses stored ChurnMetric rows when a
+ * tenant has them and otherwise derives the series from customer activity, so
+ * the chart always reflects real data rather than a mock series.
  */
 router.get("/churn-trend", async (req, res) => {
   try {
     const tenantId = req.user!.tenantId;
+    const range = resolveRange(req.query.range);
+    const buckets = bucketsFor(range);
 
-    const metrics = await prisma.churnMetric.findMany({
-      where: { tenantId },
-      orderBy: { month: "asc" },
-      take: 12,
-    });
-
-    if (metrics.length > 0) {
-      res.json({
-        data: metrics.map((m) => ({
-          month: m.month,
-          churnRate: m.churnRate,
-          predicted: m.predictedRate ?? m.churnRate,
-        })),
-        source: "metrics",
+    // Stored metrics are monthly, so they can only answer the yearly view.
+    if (range.bucketDays === 0) {
+      const metrics = await prisma.churnMetric.findMany({
+        where: { tenantId },
+        orderBy: { month: "asc" },
+        take: range.buckets,
       });
-      return;
+
+      if (metrics.length > 0) {
+        res.json({
+          data: metrics.map((m) => ({
+            month: m.month,
+            churnRate: m.churnRate,
+            predicted: m.predictedRate ?? m.churnRate,
+          })),
+          range: range.key,
+          source: "metrics",
+        });
+        return;
+      }
     }
 
     const customers = await prisma.customer.findMany({
@@ -137,39 +213,37 @@ router.get("/churn-trend", async (req, res) => {
     });
 
     if (customers.length === 0) {
-      res.json({ data: [], source: "empty" });
+      res.json({ data: [], range: range.key, source: "empty" });
       return;
     }
 
-    const now = new Date();
-    const data = [];
+    // An account counts as churned in the bucket its last activity falls in,
+    // but only once it has stayed quiet long enough to be considered gone —
+    // otherwise every still-active customer reads as a fresh churn.
+    const staleBefore = new Date(Date.now() - ACTIVE_WINDOW_DAYS * DAY_MS);
 
-    for (let i = 11; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-
-      // Customers who existed during the month.
-      const cohort = customers.filter((c) => c.signupDate < monthEnd);
-      // Those whose last activity fell before the month ended and never resumed.
-      const lapsed = cohort.filter(
-        (c) => c.lastActiveAt < monthStart && c.lastActiveAt >= new Date(monthStart.getTime() - 30 * DAY_MS)
+    const data = buckets.map(({ start, end, label }) => {
+      const cohort = customers.filter((c) => c.signupDate < end);
+      const churned = cohort.filter(
+        (c) =>
+          c.lastActiveAt >= start && c.lastActiveAt < end && c.lastActiveAt < staleBefore
       );
 
-      const churnRate = cohort.length > 0 ? (lapsed.length / cohort.length) * 100 : 0;
+      const churnRate = cohort.length > 0 ? (churned.length / cohort.length) * 100 : 0;
       // Forward-looking figure from the model's current risk scores.
       const predicted =
         cohort.length > 0
           ? (cohort.reduce((sum, c) => sum + c.churnRisk, 0) / cohort.length) * 100
           : 0;
 
-      data.push({
-        month: monthKey(monthStart),
+      return {
+        month: label,
         churnRate: Math.round(churnRate * 10) / 10,
         predicted: Math.round(predicted * 10) / 10,
-      });
-    }
+      };
+    });
 
-    res.json({ data, source: "derived" });
+    res.json({ data, range: range.key, source: "derived" });
   } catch (err) {
     console.error("Churn trend error:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -180,45 +254,48 @@ router.get("/churn-trend", async (req, res) => {
 router.get("/revenue", async (req, res) => {
   try {
     const tenantId = req.user!.tenantId;
+    const range = resolveRange(req.query.range);
+    const buckets = bucketsFor(range);
+
     const customers = await prisma.customer.findMany({
       where: { tenantId },
       select: { mrr: true, signupDate: true, lastActiveAt: true, riskLevel: true },
     });
 
     if (customers.length === 0) {
-      res.json({ data: [] });
+      res.json({ data: [], range: range.key });
       return;
     }
 
-    const now = new Date();
-    const data = [];
+    const staleBefore = new Date(Date.now() - ACTIVE_WINDOW_DAYS * DAY_MS);
 
-    for (let i = 11; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-
-      const activeThatMonth = customers.filter(
-        (c) => c.signupDate < monthEnd && c.lastActiveAt >= monthStart
+    const data = buckets.map(({ start, end, label }) => {
+      // Revenue on the books during the bucket: signed up by then, and not yet
+      // gone quiet when it began.
+      const active = customers.filter(
+        (c) => c.signupDate < end && c.lastActiveAt >= start
       );
-      const newThatMonth = customers.filter(
-        (c) => c.signupDate >= monthStart && c.signupDate < monthEnd
+      const added = customers.filter(
+        (c) => c.signupDate >= start && c.signupDate < end
       );
-      const lostThatMonth = customers.filter(
+      // Same churn definition the trend chart uses, so the two agree.
+      const lost = customers.filter(
         (c) =>
-          c.signupDate < monthStart &&
-          c.lastActiveAt >= new Date(monthStart.getTime() - 30 * DAY_MS) &&
-          c.lastActiveAt < monthStart
+          c.signupDate < start &&
+          c.lastActiveAt >= start &&
+          c.lastActiveAt < end &&
+          c.lastActiveAt < staleBefore
       );
 
-      data.push({
-        month: monthKey(monthStart),
-        mrr: Math.round(activeThatMonth.reduce((sum, c) => sum + c.mrr, 0)),
-        newRevenue: Math.round(newThatMonth.reduce((sum, c) => sum + c.mrr, 0)),
-        churnedRevenue: Math.round(lostThatMonth.reduce((sum, c) => sum + c.mrr, 0)),
-      });
-    }
+      return {
+        month: label,
+        mrr: Math.round(active.reduce((sum, c) => sum + c.mrr, 0)),
+        newRevenue: Math.round(added.reduce((sum, c) => sum + c.mrr, 0)),
+        churnedRevenue: Math.round(lost.reduce((sum, c) => sum + c.mrr, 0)),
+      };
+    });
 
-    res.json({ data });
+    res.json({ data, range: range.key });
   } catch (err) {
     console.error("Revenue error:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -284,29 +361,6 @@ router.get("/activity", async (req, res) => {
     });
   } catch (err) {
     console.error("Activity error:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-router.get("/revenue", async (req, res) => {
-  try {
-    const tenantId = req.user!.tenantId;
-    const metrics = await prisma.churnMetric.findMany({
-      where: { tenantId },
-      orderBy: { month: "asc" },
-      take: 12,
-    });
-
-    res.json({
-      data: metrics.map((m) => ({
-        month: m.month,
-        mrr: m.mrr,
-        churnedRevenue: m.churnedRevenue,
-        newRevenue: m.newRevenue,
-      })),
-    });
-  } catch (err) {
-    console.error("Revenue error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });

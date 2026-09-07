@@ -15,6 +15,33 @@ model later.
 
 ---
 
+## The all-free stack
+
+Every piece has a free tier that needs no card. This is the combination to pick
+if cost is the constraint:
+
+| Piece | Host | Free tier |
+| --- | --- | --- |
+| Postgres | **Neon** | 0.5 GB, does not expire |
+| Backend API | **Render** | 512 MB, sleeps after ~15 min idle |
+| ML service | **Render** | 512 MB, sleeps after ~15 min idle |
+| Frontend | **Vercel** | Hobby, no sleep |
+
+`render.yaml` in this repo is already pinned to `plan: free` for both services.
+
+Two caveats worth knowing up front rather than debugging later:
+
+- **Render free services sleep.** The first request after an idle period pays a
+  cold start of roughly 50 seconds. The app is not broken — it is waking up. If
+  you are demoing this, load the page once a minute beforehand.
+- **Render's own free Postgres expires after 30 days.** Neon's does not, which
+  is why the table above uses Neon. If you apply the blueprint as-is you get
+  Render's database and that 30-day clock; to use Neon instead, delete the
+  `databases:` block from `render.yaml` and set `DATABASE_URL` by hand on the
+  `churnrate-api` service.
+
+---
+
 ## Step 1 — Create the database
 
 Any managed Postgres 16 works. Two quick options:
@@ -27,7 +54,20 @@ Any managed Postgres 16 works. Two quick options:
 **Supabase**
 1. [supabase.com](https://supabase.com) → New project
 2. Settings → Database → Connection string → **URI**
-3. Use the **connection pooler** string (port 6543) if your host is serverless
+3. Take the **Session pooler** string (port **5432**), not the Transaction
+   pooler (port 6543)
+
+   > This matters. The backend boots with `prisma migrate deploy`, and the
+   > transaction pooler does not support the session-level features migrations
+   > need — point `DATABASE_URL` at port 6543 and the service crash-loops on
+   > startup before it ever serves a request. Supabase's *direct* connection
+   > works too, but it is IPv6-only, which Render's free tier cannot reach. The
+   > session pooler is IPv4 and handles both migrations and normal queries.
+
+   What this app needs from Supabase is the **connection string only**. It talks
+   to Postgres through Prisma, so `SUPABASE_URL`, the publishable/secret API
+   keys and the `@supabase/server` package play no part — that is the SDK path
+   for apps using Supabase Auth and PostgREST, which this one does not.
 
 Save the string. It looks like:
 
@@ -146,7 +186,8 @@ Then set `ML_SERVICE_URL` on the backend to this service's URL and redeploy the
 backend. Re-check `/api/health` — `mlService` should now read `ok`.
 
 > Give this service at least 512 MB of memory. XGBoost training is the peak, and
-> it will be OOM-killed on a 256 MB instance.
+> it will be OOM-killed on a 256 MB instance. Render's free tier is 512 MB, which
+> fits — but only just, so do not also run anything else in that process.
 
 ---
 
@@ -233,7 +274,9 @@ to a fixed value rather than regenerating it on each deploy. (Render's
 `generateValue: true` only generates once, on first provision.)
 
 **First request after idle is very slow**
-Free tiers sleep. Render's starter plan and Neon's free tier both cold-start.
+Free tiers sleep. A Render free service takes ~50s to wake, and Neon's free tier
+cold-starts too. The first login after a quiet spell will feel broken; the
+second will not. Paid instances remove this.
 
 **Stripe sync returns a network error**
 The backend must be able to reach `api.stripe.com` outbound. Some sandboxed or

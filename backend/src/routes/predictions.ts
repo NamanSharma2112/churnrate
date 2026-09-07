@@ -208,42 +208,4 @@ router.get("/model/info", async (req, res) => {
   }
 });
 
-/** Feature importance for the ML Models page. */
-router.get("/feature-importance", async (req, res) => {
-  try {
-    const predictions = await prisma.prediction.findMany({
-      where: { customer: { tenantId: req.user!.tenantId } },
-      orderBy: { createdAt: "desc" },
-      take: 200,
-      select: { topFactors: true },
-    });
-
-    // Average the per-customer factors so the chart reflects this tenant's data.
-    const totals = new Map<string, { sum: number; count: number }>();
-    for (const row of predictions) {
-      const factors = row.topFactors as { feature: string; impact: number }[] | null;
-      if (!Array.isArray(factors)) continue;
-      for (const factor of factors) {
-        const entry = totals.get(factor.feature) ?? { sum: 0, count: 0 };
-        entry.sum += Math.abs(factor.impact);
-        entry.count += 1;
-        totals.set(factor.feature, entry);
-      }
-    }
-
-    const features = Array.from(totals.entries())
-      .map(([feature, { sum, count }]) => ({
-        feature,
-        importance: Math.round((sum / count) * 1000) / 1000,
-      }))
-      .sort((a, b) => b.importance - a.importance)
-      .slice(0, 8);
-
-    res.json({ features });
-  } catch (err) {
-    console.error("Feature importance error:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
 export default router;
