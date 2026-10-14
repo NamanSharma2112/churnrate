@@ -3,14 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3001";
+// No localhost fallback: a deployment with no realtime server (e.g. the API on
+// Vercel functions, which cannot hold a WebSocket open) leaves this unset, and the
+// hook then stays idle rather than retrying a dead endpoint forever.
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
 
 export function useSocket(token: string | null) {
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !WS_URL) return;
 
     const socket = io(WS_URL, {
       auth: { token },

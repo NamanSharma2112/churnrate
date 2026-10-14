@@ -42,6 +42,102 @@ Two caveats worth knowing up front rather than debugging later:
 
 ---
 
+## Option: Vercel + Supabase only (no Render)
+
+Two Vercel projects from this one repo, plus a Supabase database. No server to
+keep alive: the API runs as a Vercel serverless function
+(`backend/api/index.js` wraps the same Express app the other options run).
+
+| Piece | Where | Root Directory |
+| --- | --- | --- |
+| Postgres | Supabase | — |
+| API | Vercel project #1 | `backend` |
+| Frontend | Vercel project #2 | `frontend` |
+
+### What you give up
+
+Be aware of these before choosing this path — they are limits of serverless,
+not bugs:
+
+- **No ML service.** XGBoost + scikit-learn + pandas exceed Vercel's ~250 MB
+  function size limit. Scoring uses the built-in rule-based model instead; the
+  ML Models page will read "offline". (Run `ml-service` elsewhere later and set
+  `ML_SERVICE_URL` to switch to the trained model.)
+- **No WebSockets.** A serverless function cannot hold a connection open. Nothing
+  in the UI subscribes to live updates today, so no feature is lost — just leave
+  `NEXT_PUBLIC_WS_URL` unset.
+- **~4.5 MB request body limit.** Vercel rejects larger bodies before they reach
+  the app, so **CSV imports above roughly 4 MB fail** even though the API itself
+  accepts 50 MB. Split large files, or use a long-lived host.
+- **30 s function timeout** (set in `backend/vercel.json`; Hobby allows up to
+  60 s). Re-scoring a very large customer base can exceed it.
+- **Stripe webhooks are untested on Vercel.** The handler reads the raw request
+  body for signature verification, which serverless runtimes sometimes alter.
+  Test with `stripe listen` before relying on it. Manual *Sync now* is
+  unaffected.
+- Vercel's Hobby plan is for non-commercial use.
+
+### 1 — Create the schema (once, from your own machine)
+
+Run this from a machine that can reach Postgres directly. It needs the
+**session pooler** URL (port **5432**) — migrations do not work through the
+transaction pooler:
+
+```bash
+cd backend
+npm ci
+DATABASE_URL='postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres' \
+  npx prisma migrate deploy
+```
+
+Optional demo data (creates `admin@churnrate.com` / `password123` — do **not**
+seed a deployment other people can reach, or change that password first):
+
+```bash
+DATABASE_URL='<same URL>' npm run db:seed
+```
+
+> No local machine? Open Supabase → SQL Editor and run the contents of
+> `backend/prisma/migrations/20260826000000_init/migration.sql`. The app works,
+> but Prisma will not know that migration ran — before the next schema change
+> run `npx prisma migrate resolve --applied 20260826000000_init`.
+
+### 2 — Deploy the API (Vercel project #1)
+
+Add New → Project → import the repo → **Root Directory: `backend`**. Vercel reads
+`backend/vercel.json`, so leave Framework Preset as *Other* and the build and
+install commands alone. Environment variables:
+
+```
+DATABASE_URL   = postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+JWT_SECRET     = <openssl rand -base64 32>
+ENCRYPTION_KEY = <openssl rand -hex 32>
+CORS_ORIGINS   = https://<your-frontend>.vercel.app
+NODE_ENV       = production
+```
+
+Note this is a **different** URL from step 1: port **6543** (transaction pooler)
+plus `?pgbouncer=true&connection_limit=1`. Serverless opens a fresh connection
+per cold function instance, and the session pooler on 5432 runs out of
+connections under any real concurrency.
+
+Verify: `curl https://<your-api>.vercel.app/api/health` → `"database":"ok"`
+(`"mlService":"unavailable"` is expected here).
+
+### 3 — Deploy the frontend (Vercel project #2)
+
+Add New → Project → same repo → **Root Directory: `frontend`**:
+
+```
+NEXT_PUBLIC_API_URL = https://<your-api>.vercel.app
+```
+
+No trailing slash, and set it **before** the build — it is inlined into the
+bundle, so changing it later needs a redeploy. Then put this frontend's URL into
+`CORS_ORIGINS` on the API project and redeploy that too.
+
+---
+
 ## Step 1 — Create the database
 
 Any managed Postgres 16 works. Two quick options:
@@ -304,7 +400,7 @@ firewalled environments block it.
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | Yes | Public backend URL; inlined at build time |
-| `NEXT_PUBLIC_WS_URL` | Yes | Usually identical to the above |
+| `NEXT_PUBLIC_WS_URL` | No | Realtime server; leave unset on Vercel-only deploys |
 
 ---
 
