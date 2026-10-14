@@ -1,5 +1,9 @@
 generator client {
   provider = "prisma-client-js"
+  // "native" is whatever machine runs `prisma generate` (local dev, Docker). The
+  // rhel target is what Vercel's Amazon Linux functions execute; naming it means
+  // the engine is bundled regardless of where the build happens to run.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
