@@ -105,8 +105,9 @@ DATABASE_URL='<same URL>' npm run db:seed
 ### 2 — Deploy the API (Vercel project #1)
 
 Add New → Project → import the repo → **Root Directory: `backend`**. Vercel reads
-`backend/vercel.json`, so leave Framework Preset as *Other* and the build and
-install commands alone. Environment variables:
+`backend/vercel.json`, so leave Framework Preset as *Other* and **leave the
+Install and Build command overrides empty** — a value set in the dashboard
+competes with the file. Environment variables:
 
 ```
 DATABASE_URL   = postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
@@ -197,7 +198,7 @@ Create a **Web Service** from this repo with:
 | Setting | Value |
 | --- | --- |
 | Root directory | `backend` |
-| Build command | `npm ci && npm run build` |
+| Build command | `npm ci --include=dev && npm run build` |
 | Start command | `npm run start:migrate` |
 | Health check path | `/api/health` |
 
@@ -351,6 +352,16 @@ problem is in the frontend wiring.
 ---
 
 ## Troubleshooting
+
+**Build fails with `TS7016: Could not find a declaration file for module 'express'`
+and dozens of `TS7006: Parameter 'req' implicitly has an 'any' type`**
+Not a code error. With `NODE_ENV=production` set, plain `npm ci` skips
+`devDependencies`, so `@types/express` and `@types/jsonwebtoken` are never
+installed — while `typescript` still arrives as a dependency of Prisma, so `tsc`
+runs and finds no types. Install with `npm ci --include=dev` (already set in
+`backend/vercel.json` and `render.yaml`). Do not "fix" it with
+`declare module 'express'`: that silences the error by making every route
+untyped. On any other host, use `--include=dev` in the install step too.
 
 **"Cannot reach the server" on the login page**
 `NEXT_PUBLIC_API_URL` is wrong, or was changed without rebuilding. On Vercel,

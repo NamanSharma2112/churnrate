@@ -18,7 +18,9 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm ci && npm run build
+    # --include=dev: NODE_ENV=production (set below) makes plain `npm ci` skip
+    # devDependencies, which drops @types/express & co. and breaks `tsc`.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start:migrate
     healthCheckPath: /api/health
     envVars:
