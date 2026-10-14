@@ -34,7 +34,7 @@
     "@eslint/js": "^9.39.5",
     "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.2",
+    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.15.0",
     "@types/uuid": "^10.0.0",
