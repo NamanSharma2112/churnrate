@@ -1,40 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { Analytics01Icon } from "hugeicons-react";
+import { BrainCircuit } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { API_BASE } from "@/lib/api";
+import { featureLabel } from "@/lib/factors";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ChartPanel, tooltipStyle } from "./ChartPanel";
+import { RankedBars } from "@/components/charts/RankedBars";
+import { ChartPanel } from "./ChartPanel";
 
 interface FeatureRow {
   feature: string;
   importance: number;
 }
-
-/** Human labels for the model's raw feature names. */
-const LABELS: Record<string, string> = {
-  mrr: "Monthly revenue",
-  health_score: "Health score",
-  plan_encoded: "Plan tier",
-  days_since_signup: "Account age",
-  days_since_active: "Days since active",
-  support_tickets: "Support tickets",
-  feature_usage_pct: "Feature usage",
-  login_frequency: "Login frequency",
-  nps_score: "NPS score",
-  activity_ratio: "Inactivity vs tenure",
-  engagement_score: "Engagement score",
-};
 
 export function FeatureImportanceChart() {
   const { token } = useAuthStore();
@@ -53,43 +31,24 @@ export function FeatureImportanceChart() {
       .finally(() => setLoaded(true));
   }, [token]);
 
-  const data = features.map((row) => ({
-    ...row,
-    label: LABELS[row.feature] ?? row.feature,
-  }));
-
   return (
-    <ChartPanel
-      title="Feature Importance"
-      description="Average weight of each signal across your scored customers"
-    >
-      {loaded && data.length === 0 ? (
-        <EmptyState
-          compact
-          icon={Analytics01Icon}
-          title="No predictions yet"
-          description="Run predictions on your customers to see which signals drive churn."
-        />
+    <ChartPanel title="Feature importance" description="Average weight of each signal across your scored customers">
+      {features.length === 0 ? (
+        loaded ? (
+          <EmptyState icon={BrainCircuit} title="No predictions yet" description="Re-score your customers to see which signals matter." compact />
+        ) : (
+          <div className="h-[160px]" />
+        )
       ) : (
-        <div className="h-full min-h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} layout="vertical" margin={{ top: 5, right: 16, left: 8, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" horizontal={false} />
-              <XAxis type="number" stroke="#a3a3a3" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis
-                type="category"
-                dataKey="label"
-                stroke="#525252"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                width={130}
-              />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#f5f5f5" }} />
-              <Bar dataKey="importance" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} isAnimationActive={false} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <RankedBars
+          rows={features.map((f) => ({
+            key: f.feature,
+            label: featureLabel(f.feature),
+            value: f.importance,
+            display: f.importance.toFixed(2),
+          }))}
+          ariaLabel="Feature importance"
+        />
       )}
     </ChartPanel>
   );

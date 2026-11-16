@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { BTN_PRIMARY } from "@/lib/ui";
 
 /**
  * Shared empty state. A new workspace has no data, and a wall of zeroed charts
@@ -23,42 +24,19 @@ export function EmptyState({
   compact?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center text-center",
-        compact ? "px-4 py-8" : "px-6 py-14",
-        className
-      )}
-    >
+    <div className={cn("flex flex-col items-center justify-center text-center", compact ? "px-4 py-8" : "px-6 py-14", className)}>
       <span
         className={cn(
-          "mb-4 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-400",
-          compact ? "size-10" : "size-14"
+          "mb-3 flex items-center justify-center rounded-full bg-accent text-muted-foreground",
+          compact ? "size-9" : "size-12"
         )}
       >
-        <Icon size={compact ? 20 : 26} />
+        <Icon size={compact ? 18 : 22} strokeWidth={1.75} />
       </span>
-      <h3
-        className={cn(
-          "font-semibold text-neutral-900",
-          compact ? "text-sm" : "text-base"
-        )}
-      >
-        {title}
-      </h3>
-      <p
-        className={cn(
-          "mt-1.5 max-w-sm text-neutral-500",
-          compact ? "text-xs" : "text-sm"
-        )}
-      >
-        {description}
-      </p>
+      <h3 className={cn("font-medium text-foreground", compact ? "text-[13px]" : "text-[15px]")}>{title}</h3>
+      <p className={cn("mt-1 max-w-sm text-muted-foreground", compact ? "text-[12px]" : "text-[13px]")}>{description}</p>
       {actionLabel && actionHref && (
-        <Link
-          href={actionHref}
-          className="mt-5 inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700"
-        >
+        <Link href={actionHref} className={cn(BTN_PRIMARY, "mt-4")}>
           {actionLabel}
         </Link>
       )}

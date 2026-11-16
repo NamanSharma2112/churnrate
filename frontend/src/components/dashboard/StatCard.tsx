@@ -1,6 +1,5 @@
-"use client";
-
-import { ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon } from "hugeicons-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { CARD } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
@@ -8,66 +7,36 @@ interface StatCardProps {
   value: string;
   change: number;
   icon: React.ElementType;
-  iconColor: string;
+  /** Kept for callers; the calm palette draws every stat icon in muted ink. */
+  iconColor?: string;
   suffix?: string;
-  /** True when a rise is bad (churn rate, at-risk count). */
+  /** True when a rise is bad news (churn, at-risk counts). */
   inverse?: boolean;
 }
 
-export function StatCard({
-  title,
-  value,
-  change,
-  icon: Icon,
-  iconColor,
-  suffix,
-  inverse = false,
-}: StatCardProps) {
-  const isFlat = Math.abs(change) < 0.05;
-  const isPositive = change > 0;
-  const isGood = inverse ? !isPositive : isPositive;
-
+export function StatCard({ title, value, change, icon: Icon, suffix, inverse }: StatCardProps) {
+  const flat = change === 0;
+  const up = change > 0;
+  const good = inverse ? !up : up;
   return (
-    <div className="flex flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300">
-      {/*
-        Fixed header height so the value baseline lines up across the row —
-        "Total Customers" wraps to two lines where "MRR" does not.
-      */}
-      <div className="mb-3 flex min-h-[34px] items-start justify-between gap-2">
-        <span className="text-[11px] font-medium uppercase leading-tight tracking-wider text-neutral-500">
-          {title}
-        </span>
-        <div
-          className="flex size-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ backgroundColor: `${iconColor}15` }}
-        >
-          <Icon size={16} style={{ color: iconColor }} />
-        </div>
-      </div>
-
-      <div className="mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-1">
-        <p className="text-2xl font-bold leading-none text-neutral-900">
-          {value}
-          {suffix && (
-            <span className="ml-1 text-sm font-normal text-neutral-500">{suffix}</span>
-          )}
-        </p>
-        <div
-          className={cn(
-            "flex items-center gap-0.5 text-xs font-medium",
-            isFlat ? "text-neutral-400" : isGood ? "text-emerald-600" : "text-red-500"
-          )}
-        >
-          {isFlat ? (
-            <MinusSignIcon size={13} />
-          ) : isPositive ? (
-            <ArrowUp01Icon size={13} />
-          ) : (
-            <ArrowDown01Icon size={13} />
-          )}
-          {isFlat ? "0%" : `${Math.abs(change)}%`}
-        </div>
-      </div>
+    <div className={cn(CARD, "flex min-w-0 flex-col px-4 py-3.5")}>
+      <p className="flex items-center gap-1.5 text-[12px] text-subtle">
+        <Icon aria-hidden size={14} className="text-muted-foreground" />
+        {title}
+      </p>
+      <p className="mt-1.5 text-[22px] font-medium leading-7 text-foreground">
+        {value}
+        {suffix && <span className="ml-0.5 text-[13px] font-normal text-muted-foreground">{suffix}</span>}
+      </p>
+      <p
+        className={cn(
+          "mt-0.5 flex items-center gap-0.5 text-[12px] tabular-nums",
+          flat ? "text-muted-foreground" : good ? "text-success" : "text-destructive"
+        )}
+      >
+        {!flat && (up ? <ArrowUpRight aria-hidden className="size-3.5" /> : <ArrowDownRight aria-hidden className="size-3.5" />)}
+        {flat ? "No change" : `${Math.abs(change)}%`}
+      </p>
     </div>
   );
 }

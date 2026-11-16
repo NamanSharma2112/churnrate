@@ -83,7 +83,7 @@ export default function ModelsPage() {
           type="button"
           onClick={rescoreAll}
           disabled={scoring}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-60"
+          className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-hover disabled:opacity-60"
         >
           {scoring && <Loading01Icon size={15} className="animate-spin" />}
           {scoring ? "Scoring…" : "Re-score all customers"}
@@ -91,7 +91,7 @@ export default function ModelsPage() {
       </PageHeader>
 
       {notice && (
-        <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+        <div className="mb-6 rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">
           {notice}
         </div>
       )}
@@ -102,16 +102,16 @@ export default function ModelsPage() {
           <span
             className={cn(
               "flex size-10 shrink-0 items-center justify-center rounded-lg",
-              info?.online ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"
+              info?.online ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-red-500/10 text-red-500 dark:text-red-400"
             )}
           >
             <CpuSettingsIcon size={20} />
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-neutral-900">
+            <p className="text-sm font-semibold text-foreground">
               {info?.online ? "Model service online" : "Model service unreachable"}
             </p>
-            <p className="truncate text-xs text-neutral-500">
+            <p className="truncate text-xs text-muted-foreground">
               {info?.version ? `Version ${info.version}` : "No version reported"}
               {!info?.online &&
                 " · predictions fall back to a deterministic rule-based score"}
@@ -120,8 +120,8 @@ export default function ModelsPage() {
         </div>
 
         <div className="text-right">
-          <p className="text-xs uppercase tracking-wider text-neutral-500">Coverage</p>
-          <p className="text-sm font-medium text-neutral-900">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Coverage</p>
+          <p className="text-sm font-medium text-foreground">
             {(info?.coverage.scoredCustomers ?? 0).toLocaleString()} /{" "}
             {(info?.coverage.totalCustomers ?? 0).toLocaleString()} scored
           </p>
@@ -156,8 +156,8 @@ export default function ModelsPage() {
         <FeatureImportanceChart />
 
         <div className="panel p-5 sm:p-6">
-          <h3 className="text-base font-semibold text-neutral-900">How scoring works</h3>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h3 className="text-base font-semibold text-foreground">How scoring works</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
             What the model reads, and what happens when a signal is missing.
           </p>
 
@@ -185,8 +185,8 @@ export default function ModelsPage() {
               },
             ].map((row) => (
               <div key={row.term}>
-                <dt className="text-sm font-medium text-neutral-900">{row.term}</dt>
-                <dd className="mt-1 text-sm leading-relaxed text-neutral-600">
+                <dt className="text-sm font-medium text-foreground">{row.term}</dt>
+                <dd className="mt-1 text-sm leading-relaxed text-subtle">
                   {row.detail}
                 </dd>
               </div>
@@ -194,7 +194,7 @@ export default function ModelsPage() {
           </dl>
 
           {info?.coverage.lastRunAt && (
-            <p className="mt-6 border-t border-neutral-100 pt-4 text-xs text-neutral-500">
+            <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">
               Last scored {new Date(info.coverage.lastRunAt).toLocaleString()}
             </p>
           )}

@@ -209,7 +209,7 @@ export default function ImportPage() {
       >
         <Link
           href="/integrations"
-          className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
+          className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-subtle shadow-sm transition-colors hover:bg-muted"
         >
           <CreditCardIcon size={16} />
           Connect Stripe instead
@@ -219,7 +219,7 @@ export default function ImportPage() {
       <Stepper stage={stage} />
 
       {error && (
-        <div className="mb-6 flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-6 flex items-start gap-2.5 rounded-lg border border-red-500/25 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
           <Alert01Icon size={18} className="mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -252,24 +252,24 @@ export default function ImportPage() {
               className={cn(
                 "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-colors",
                 dragging
-                  ? "border-indigo-500 bg-indigo-50/60"
-                  : "border-neutral-200 bg-neutral-50 hover:border-indigo-400 hover:bg-indigo-50/40"
+                  ? "border-brand bg-brand-muted/60"
+                  : "border-border bg-muted hover:border-brand-border hover:bg-brand-muted/40"
               )}
             >
-              <span className="mb-4 flex size-14 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+              <span className="mb-4 flex size-14 items-center justify-center rounded-full bg-brand-muted text-brand">
                 {busy ? (
                   <Loading01Icon size={26} className="animate-spin" />
                 ) : (
                   <CloudUploadIcon size={26} />
                 )}
               </span>
-              <h3 className="text-base font-semibold text-neutral-900">
+              <h3 className="text-base font-semibold text-foreground">
                 {busy ? "Reading your file…" : "Drop a CSV here"}
               </h3>
-              <p className="mt-1.5 max-w-sm text-sm text-neutral-500">
+              <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
                 Or click to browse. CSV, TSV and semicolon-separated files all work.
               </p>
-              <span className="mt-5 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm">
+              <span className="mt-5 rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-sm">
                 Select file
               </span>
             </div>
@@ -285,11 +285,11 @@ export default function ImportPage() {
               }}
             />
 
-            <div className="mt-6 rounded-lg border border-neutral-200 bg-[#FCFCFC] p-4">
-              <p className="text-xs font-medium text-neutral-700">
+            <div className="mt-6 rounded-lg border border-border bg-[#FCFCFC] p-4">
+              <p className="text-xs font-medium text-subtle">
                 Only an email column is required.
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 Everything else is optional — the more signals you include (last login,
                 health score, support tickets, NPS), the sharper the predictions. Columns we
                 don&apos;t recognise are kept on the record rather than discarded.
@@ -306,12 +306,12 @@ export default function ImportPage() {
           <div className="panel p-4 sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent text-muted-foreground">
                   <File02Icon size={20} />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-neutral-900">{fileName}</p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="truncate text-sm font-medium text-foreground">{fileName}</p>
+                  <p className="text-xs text-muted-foreground">
                     {analysis.rowCount.toLocaleString()} rows ·{" "}
                     {analysis.columns.length} columns · {analysis.validRows} importable
                     {analysis.invalidRows > 0 && ` · ${analysis.invalidRows} skipped`}
@@ -321,7 +321,7 @@ export default function ImportPage() {
               <button
                 type="button"
                 onClick={reset}
-                className="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-50"
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-subtle transition-colors hover:bg-muted"
               >
                 <ArrowLeft01Icon size={15} />
                 Choose another file
@@ -330,15 +330,15 @@ export default function ImportPage() {
           </div>
 
           <div className="panel">
-            <div className="border-b border-neutral-200 p-4 sm:p-5">
-              <h3 className="text-base font-semibold text-neutral-900">Review the mapping</h3>
-              <p className="mt-0.5 text-sm text-neutral-500">
+            <div className="border-b border-border p-4 sm:p-5">
+              <h3 className="text-base font-semibold text-foreground">Review the mapping</h3>
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 We matched your columns to our fields. Change anything that looks wrong before
                 importing.
               </p>
             </div>
 
-            <div className="divide-y divide-neutral-100">
+            <div className="divide-y divide-border">
               {fields.map((spec) => {
                 const match = analysis.matches.find((m) => m.field === spec.field);
                 const current = mapping[spec.field] ?? "";
@@ -350,26 +350,26 @@ export default function ImportPage() {
                   >
                     <div className="min-w-0 sm:w-1/2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-medium text-neutral-900">
+                        <span className="text-sm font-medium text-foreground">
                           {spec.label}
                         </span>
                         {spec.required && (
-                          <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-red-600">
+                          <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-red-600 dark:text-red-400">
                             Required
                           </span>
                         )}
                         {current && match && match.confidence >= 0.9 && (
-                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
+                          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
                             High confidence
                           </span>
                         )}
                         {current && match && match.confidence < 0.9 && (
-                          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-600">
+                          <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
                             Please verify
                           </span>
                         )}
                       </div>
-                      <p className="mt-0.5 text-xs text-neutral-500">{spec.description}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{spec.description}</p>
                     </div>
 
                     <select
@@ -377,10 +377,10 @@ export default function ImportPage() {
                       onChange={(event) => assign(spec.field, event.target.value)}
                       aria-label={`Column for ${spec.label}`}
                       className={cn(
-                        "w-full rounded-lg border bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 sm:w-64",
+                        "w-full rounded-lg border bg-card px-3 py-2 text-sm text-foreground shadow-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20 sm:w-64",
                         spec.required && !current
-                          ? "border-red-300"
-                          : "border-neutral-200"
+                          ? "border-red-500/25"
+                          : "border-border"
                       )}
                     >
                       <option value="">
@@ -398,8 +398,8 @@ export default function ImportPage() {
             </div>
 
             {analysis.unmapped.length > 0 && (
-              <div className="border-t border-neutral-200 bg-[#FCFCFC] p-4 sm:px-5">
-                <p className="text-xs text-neutral-600">
+              <div className="border-t border-border bg-[#FCFCFC] p-4 sm:px-5">
+                <p className="text-xs text-subtle">
                   <span className="font-medium">Kept as custom attributes:</span>{" "}
                   {analysis.unmapped.join(", ")}
                 </p>
@@ -411,13 +411,13 @@ export default function ImportPage() {
 
           {analysis.errors.length > 0 && (
             <div className="panel p-4 sm:p-5">
-              <h3 className="text-sm font-semibold text-neutral-900">
+              <h3 className="text-sm font-semibold text-foreground">
                 {analysis.invalidRows} row{analysis.invalidRows === 1 ? "" : "s"} will be
                 skipped
               </h3>
               <ul className="mt-3 space-y-1.5">
                 {analysis.errors.slice(0, 8).map((rowError, index) => (
-                  <li key={index} className="text-xs text-neutral-600">
+                  <li key={index} className="text-xs text-subtle">
                     <span className="font-medium">Row {rowError.row}:</span> {rowError.error}
                   </li>
                 ))}
@@ -426,7 +426,7 @@ export default function ImportPage() {
           )}
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-muted-foreground">
               {emailMapped
                 ? `${analysis.validRows.toLocaleString()} customers will be imported and scored.`
                 : "Map a column to Email before importing."}
@@ -435,7 +435,7 @@ export default function ImportPage() {
               type="button"
               onClick={runImport}
               disabled={busy || !emailMapped}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy && <Loading01Icon size={16} className="animate-spin" />}
               {busy ? "Importing…" : "Import and score"}
@@ -446,11 +446,11 @@ export default function ImportPage() {
 
       {stage === "done" && result && (
         <div className="panel p-8 text-center sm:p-12">
-          <span className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+          <span className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CheckmarkCircle01Icon size={28} />
           </span>
-          <h3 className="text-xl font-semibold text-neutral-900">Import complete</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500">
+          <h3 className="text-xl font-semibold text-foreground">Import complete</h3>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
             {result.imported} new customer{result.imported === 1 ? "" : "s"} added
             {result.updated > 0 && `, ${result.updated} updated`}
             {result.skipped > 0 && `, ${result.skipped} skipped`}. {result.scored} account
@@ -459,20 +459,20 @@ export default function ImportPage() {
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/dashboard"
-              className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700"
+              className="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-hover"
             >
               View dashboard
             </Link>
             <Link
               href="/at-risk"
-              className="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
+              className="rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-medium text-subtle shadow-sm transition-colors hover:bg-muted"
             >
               See at-risk accounts
             </Link>
             <button
               type="button"
               onClick={reset}
-              className="rounded-lg px-5 py-2.5 text-sm font-medium text-neutral-500 transition-colors hover:text-neutral-900"
+              className="rounded-lg px-5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Import another file
             </button>
@@ -501,8 +501,8 @@ function Stepper({ stage }: { stage: Stage }) {
               index < activeIndex
                 ? "bg-emerald-500 text-white"
                 : index === activeIndex
-                  ? "bg-indigo-600 text-white"
-                  : "bg-neutral-200 text-neutral-500"
+                  ? "bg-brand text-white"
+                  : "bg-border text-muted-foreground"
             )}
           >
             {index < activeIndex ? "✓" : index + 1}
@@ -510,13 +510,13 @@ function Stepper({ stage }: { stage: Stage }) {
           <span
             className={cn(
               "whitespace-nowrap text-sm",
-              index === activeIndex ? "font-medium text-neutral-900" : "text-neutral-500"
+              index === activeIndex ? "font-medium text-foreground" : "text-muted-foreground"
             )}
           >
             {step.label}
           </span>
           {index < steps.length - 1 && (
-            <span className="mx-1 h-px w-6 shrink-0 bg-neutral-200 sm:w-10" />
+            <span className="mx-1 h-px w-6 shrink-0 bg-border sm:w-10" />
           )}
         </div>
       ))}
@@ -536,16 +536,16 @@ const PREVIEW_COLUMNS = [
 function PreviewTable({ preview }: { preview: Record<string, unknown>[] }) {
   return (
     <div className="panel">
-      <div className="border-b border-neutral-200 p-4 sm:p-5">
-        <h3 className="text-base font-semibold text-neutral-900">Preview</h3>
-        <p className="mt-0.5 text-sm text-neutral-500">
+      <div className="border-b border-border p-4 sm:p-5">
+        <h3 className="text-base font-semibold text-foreground">Preview</h3>
+        <p className="mt-0.5 text-sm text-muted-foreground">
           The first {preview.length} rows, as they will be stored.
         </p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px]">
           <thead>
-            <tr className="border-b border-neutral-200 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+            <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
               {PREVIEW_COLUMNS.map((column) => (
                 <th key={column.key} className="whitespace-nowrap px-4 py-3 font-medium">
                   {column.label}
@@ -555,16 +555,16 @@ function PreviewTable({ preview }: { preview: Record<string, unknown>[] }) {
           </thead>
           <tbody>
             {preview.map((row, index) => (
-              <tr key={index} className="border-b border-neutral-100 last:border-0">
+              <tr key={index} className="border-b border-border last:border-0">
                 {PREVIEW_COLUMNS.map((column) => {
                   const value = row[column.key];
                   return (
                     <td
                       key={column.key}
-                      className="whitespace-nowrap px-4 py-2.5 text-sm text-neutral-700"
+                      className="whitespace-nowrap px-4 py-2.5 text-sm text-subtle"
                     >
                       {value === null || value === undefined || value === ""
-                        ? <span className="text-neutral-300">—</span>
+                        ? <span className="text-muted-foreground/60">—</span>
                         : column.key === "mrr"
                           ? `$${Number(value).toLocaleString()}`
                           : String(value)}
@@ -583,9 +583,9 @@ function PreviewTable({ preview }: { preview: Record<string, unknown>[] }) {
 function RecentImports({ history }: { history: ImportBatch[] }) {
   return (
     <div className="panel flex flex-col">
-      <div className="border-b border-neutral-200 p-4 sm:p-5">
-        <h3 className="text-base font-semibold text-neutral-900">Recent imports</h3>
-        <p className="mt-0.5 text-sm text-neutral-500">Your latest data syncs</p>
+      <div className="border-b border-border p-4 sm:p-5">
+        <h3 className="text-base font-semibold text-foreground">Recent imports</h3>
+        <p className="mt-0.5 text-sm text-muted-foreground">Your latest data syncs</p>
       </div>
 
       {history.length === 0 ? (
@@ -597,11 +597,11 @@ function RecentImports({ history }: { history: ImportBatch[] }) {
           className="flex-1"
         />
       ) : (
-        <div className="flex-1 divide-y divide-neutral-100 overflow-auto">
+        <div className="flex-1 divide-y divide-border overflow-auto">
           {history.map((batch) => (
             <div key={batch.id} className="flex items-center justify-between gap-3 p-4 sm:px-5">
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-muted-foreground">
                   {batch.source === "stripe" ? (
                     <CreditCardIcon size={18} />
                   ) : (
@@ -609,16 +609,16 @@ function RecentImports({ history }: { history: ImportBatch[] }) {
                   )}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-neutral-900">
+                  <p className="truncate text-sm font-medium text-foreground">
                     {batch.fileName || `${batch.source} sync`}
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     {new Date(batch.createdAt).toLocaleString()} · {batch.imported} added
                     {batch.updated > 0 && `, ${batch.updated} updated`}
                   </p>
                 </div>
               </div>
-              <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
+              <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 <CheckmarkCircle01Icon size={13} />
                 Done
               </span>

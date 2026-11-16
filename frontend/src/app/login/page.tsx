@@ -83,7 +83,7 @@ export default function LoginPage() {
           <div className="mt-2 text-right">
             <Link
               href="/register"
-              className="text-xs font-medium text-neutral-500 transition-colors hover:text-indigo-600"
+              className="text-xs font-medium text-muted-foreground transition-colors hover:text-brand"
             >
               Don&apos;t have an account?
             </Link>
@@ -94,9 +94,9 @@ export default function LoginPage() {
           Sign in
         </SubmitButton>
 
-        <p className="text-center text-sm text-neutral-500">
+        <p className="text-center text-sm text-muted-foreground">
           New to ChurnRate?{" "}
-          <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-700">
+          <Link href="/register" className="font-medium text-brand hover:text-brand">
             Create an account
           </Link>
         </p>

@@ -18,21 +18,21 @@ const RISK_FILTERS = ["all", "critical", "high", "medium", "low"] as const;
 type RiskFilter = (typeof RISK_FILTERS)[number];
 
 function healthClasses(score: number) {
-  if (score >= 70) return "text-emerald-600 bg-emerald-50";
-  if (score >= 40) return "text-amber-600 bg-amber-50";
-  return "text-red-600 bg-red-50";
+  if (score >= 70) return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10";
+  if (score >= 40) return "text-amber-600 dark:text-amber-400 bg-amber-500/10";
+  return "text-red-600 dark:text-red-400 bg-red-500/10";
 }
 
 function riskClasses(level?: string) {
   switch (level) {
     case "critical":
-      return "bg-red-50 text-red-600";
+      return "bg-red-500/10 text-red-600 dark:text-red-400";
     case "high":
-      return "bg-orange-50 text-orange-600";
+      return "bg-orange-500/10 text-orange-600 dark:text-orange-400";
     case "medium":
-      return "bg-amber-50 text-amber-600";
+      return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
     default:
-      return "bg-emerald-50 text-emerald-600";
+      return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
   }
 }
 
@@ -100,11 +100,11 @@ export function CustomerDirectoryTable() {
   };
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-neutral-200 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+    <div className="rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-neutral-900">All Customers</h3>
-          <p className="mt-0.5 text-sm text-neutral-500">
+          <h3 className="text-base font-semibold text-foreground">All Customers</h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             {visible.length.toLocaleString()} account{visible.length === 1 ? "" : "s"}
           </p>
         </div>
@@ -112,7 +112,7 @@ export function CustomerDirectoryTable() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1 sm:flex-initial">
             <Search01Icon
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               size={16}
             />
             <input
@@ -120,7 +120,7 @@ export function CustomerDirectoryTable() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search name, email or company…"
-              className="w-full rounded-lg border border-neutral-200 bg-white py-2 pl-9 pr-3 text-sm text-neutral-900 shadow-sm outline-none transition-colors placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 sm:w-72"
+              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-brand focus:ring-2 focus:ring-brand/20 sm:w-72"
             />
           </div>
           <button
@@ -130,8 +130,8 @@ export function CustomerDirectoryTable() {
             className={cn(
               "flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm shadow-sm transition-colors",
               riskFilter !== "all"
-                ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+                ? "border-brand-border bg-brand-muted text-brand"
+                : "border-border bg-card text-subtle hover:bg-muted"
             )}
           >
             <FilterIcon size={16} />
@@ -141,8 +141,8 @@ export function CustomerDirectoryTable() {
       </div>
 
       {filtersOpen && (
-        <div className="flex flex-wrap items-center gap-2 border-b border-neutral-200 bg-[#FCFCFC] px-4 py-3 sm:px-5">
-          <span className="text-xs font-medium text-neutral-500">Risk level:</span>
+        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-[#FCFCFC] px-4 py-3 sm:px-5">
+          <span className="text-xs font-medium text-muted-foreground">Risk level:</span>
           {RISK_FILTERS.map((level) => (
             <button
               key={level}
@@ -151,8 +151,8 @@ export function CustomerDirectoryTable() {
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors",
                 riskFilter === level
-                  ? "bg-indigo-600 text-white"
-                  : "border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+                  ? "bg-brand text-white"
+                  : "border border-border bg-card text-subtle hover:bg-muted"
               )}
             >
               {level}
@@ -177,7 +177,7 @@ export function CustomerDirectoryTable() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px]">
             <thead>
-              <tr className="border-b border-neutral-200 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+              <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
                 <th className="whitespace-nowrap px-4 py-3 font-medium sm:px-5">Customer</th>
                 <th className="whitespace-nowrap px-3 py-3 font-medium">Plan</th>
                 <th className="whitespace-nowrap px-3 py-3 font-medium">MRR</th>
@@ -194,22 +194,22 @@ export function CustomerDirectoryTable() {
               {visible.map((customer) => (
                 <tr
                   key={customer.id}
-                  className="border-b border-neutral-100 last:border-0 transition-colors hover:bg-neutral-50"
+                  className="border-b border-border last:border-0 transition-colors hover:bg-muted"
                 >
                   <td className="px-4 py-3.5 sm:px-5">
                     {/* Falls back to the contact name when a record has no
                         company, so the primary label is never blank. */}
-                    <p className="text-sm font-medium text-neutral-900">
+                    <p className="text-sm font-medium text-foreground">
                       {customer.company || customer.name}
                     </p>
-                    <p className="text-xs text-neutral-500">{customer.email}</p>
+                    <p className="text-xs text-muted-foreground">{customer.email}</p>
                   </td>
                   <td className="px-3 py-3.5">
-                    <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium capitalize text-neutral-600">
+                    <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-medium capitalize text-subtle">
                       {customer.plan}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3.5 text-sm font-medium text-neutral-900">
+                  <td className="whitespace-nowrap px-3 py-3.5 text-sm font-medium text-foreground">
                     ${customer.mrr.toLocaleString()}
                   </td>
                   <td className="px-3 py-3.5">
@@ -234,18 +234,18 @@ export function CustomerDirectoryTable() {
                   </td>
                   <td className="px-3 py-3.5">
                     {isActive(customer) ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                         <span className="size-1.5 rounded-full bg-emerald-500" />
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-500">
-                        <span className="size-1.5 rounded-full bg-neutral-400" />
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                        <span className="size-1.5 rounded-full bg-muted-foreground" />
                         Inactive
                       </span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3.5 text-sm text-neutral-500">
+                  <td className="whitespace-nowrap px-3 py-3.5 text-sm text-muted-foreground">
                     {formatJoinDate(customer.signupDate)}
                   </td>
                   <td className="px-4 py-3.5 text-right sm:px-5">
@@ -255,7 +255,7 @@ export function CustomerDirectoryTable() {
                       disabled={predictingId === customer.id}
                       title="Re-score churn risk"
                       aria-label={`Re-score ${customer.company || customer.name}`}
-                      className="rounded-lg p-1.5 text-indigo-500 transition-colors hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-50"
+                      className="rounded-lg p-1.5 text-brand transition-colors hover:bg-brand-muted hover:text-brand disabled:opacity-50"
                     >
                       {predictingId === customer.id ? (
                         <Loading01Icon size={18} className="animate-spin" />

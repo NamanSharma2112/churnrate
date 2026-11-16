@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RevenueChart } from "@/components/dashboard/charts/RevenueChart";
+import { NetRevenueChart, RevenueChart } from "@/components/dashboard/charts/RevenueChart";
 import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useDashboardStore } from "@/store/dashboard";
@@ -92,14 +92,15 @@ export default function ReportsPage() {
         description="Export your churn data for sharing or deeper analysis"
       />
 
-      <div className="mb-4 sm:mb-6">
+      <div className="mb-4 grid gap-4 sm:mb-6 lg:grid-cols-2">
         <RevenueChart />
+        <NetRevenueChart />
       </div>
 
       <div className="panel">
-        <div className="border-b border-neutral-200 p-4 sm:p-5">
-          <h3 className="text-base font-semibold text-neutral-900">Available reports</h3>
-          <p className="mt-0.5 text-sm text-neutral-500">
+        <div className="border-b border-border p-4 sm:p-5">
+          <h3 className="text-base font-semibold text-foreground">Available reports</h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Generated from your current data, downloaded as CSV
           </p>
         </div>
@@ -113,19 +114,19 @@ export default function ReportsPage() {
             actionHref="/import"
           />
         ) : (
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-border">
             {reports.map((report) => (
               <div
                 key={report.id}
-                className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-neutral-50 sm:px-5"
+                className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-muted sm:px-5"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-muted text-brand">
                     <DocumentValidationIcon size={20} />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-neutral-900">{report.name}</p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-sm font-medium text-foreground">{report.name}</p>
+                    <p className="text-xs text-muted-foreground">
                       {report.description} · {report.rows.length} row
                       {report.rows.length === 1 ? "" : "s"}
                     </p>
@@ -135,7 +136,7 @@ export default function ReportsPage() {
                   type="button"
                   onClick={() => download(report.id, report.rows)}
                   disabled={report.rows.length === 0 || downloading === report.id}
-                  className="flex shrink-0 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 disabled:opacity-50"
+                  className="flex shrink-0 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-subtle shadow-sm transition-colors hover:bg-muted disabled:opacity-50"
                 >
                   <Download01Icon size={16} />
                   Download CSV
