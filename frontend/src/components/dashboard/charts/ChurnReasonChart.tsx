@@ -1,19 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { Alert01Icon } from "hugeicons-react";
+import { TriangleAlert } from "lucide-react";
 import { useDashboardStore } from "@/store/dashboard";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ChartPanel, tooltipStyle } from "./ChartPanel";
+import { RankedBars } from "@/components/charts/RankedBars";
+import { reasonLabel } from "@/lib/factors";
+import { ChartPanel } from "./ChartPanel";
 
 interface Factor {
   feature: string;
@@ -22,31 +15,16 @@ interface Factor {
   direction?: string;
 }
 
-const LABELS: Record<string, string> = {
-  days_since_active: "Gone quiet",
-  health_score: "Low health score",
-  support_tickets: "Support load",
-  nps_score: "Poor NPS",
-  login_frequency: "Rare logins",
-  feature_usage_pct: "Low feature usage",
-  mrr: "Low spend",
-  plan_encoded: "Plan tier",
-  activity_ratio: "Inactivity vs tenure",
-  engagement_score: "Weak engagement",
-  days_since_signup: "Account age",
-};
-
 /**
  * Aggregates the per-customer risk factors the model returned for at-risk
  * accounts, so this reflects why *these* customers are leaving rather than a
  * hard-coded survey.
  */
 export function ChurnReasonChart() {
-  const { atRiskCustomers } = useDashboardStore();
+  const { atRiskCustomers, loaded } = useDashboardStore();
 
-  const data = useMemo(() => {
+  const rows = useMemo(() => {
     const totals = new Map<string, number>();
-
     for (const customer of atRiskCustomers) {
       const factors = (customer as { topFactors?: Factor[] }).topFactors ?? [];
       for (const factor of factors) {
@@ -55,48 +33,33 @@ export function ChurnReasonChart() {
         totals.set(factor.feature, (totals.get(factor.feature) ?? 0) + Math.abs(factor.impact));
       }
     }
-
+    const sum = Array.from(totals.values()).reduce((a, b) => a + b, 0) || 1;
     return Array.from(totals.entries())
       .map(([feature, weight]) => ({
-        reason: LABELS[feature] ?? feature,
-        weight: Math.round(weight * 100) / 100,
+        key: feature,
+        label: reasonLabel(feature),
+        value: weight,
+        display: `${Math.round((weight / sum) * 100)}%`,
       }))
-      .sort((a, b) => b.weight - a.weight)
+      .sort((a, b) => b.value - a.value)
       .slice(0, 6);
   }, [atRiskCustomers]);
 
   return (
-    <ChartPanel
-      title="Top Churn Drivers"
-      description="Signals pushing your at-risk accounts toward churn"
-    >
-      {data.length === 0 ? (
-        <EmptyState
-          compact
-          icon={Alert01Icon}
-          title="No at-risk accounts"
-          description="Churn drivers appear once the model flags customers as high risk."
-        />
+    <ChartPanel title="Why customers are at risk" description="Share of model weight across high-risk accounts">
+      {rows.length === 0 ? (
+        loaded ? (
+          <EmptyState
+            icon={TriangleAlert}
+            title="No risk drivers yet"
+            description="Once accounts cross the high-risk threshold, the signals behind them appear here."
+            compact
+          />
+        ) : (
+          <div className="h-[160px]" />
+        )
       ) : (
-        <div className="h-full min-h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} layout="vertical" margin={{ top: 5, right: 16, left: 8, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" horizontal={false} />
-              <XAxis type="number" stroke="#a3a3a3" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis
-                type="category"
-                dataKey="reason"
-                stroke="#525252"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                width={120}
-              />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#f5f5f5" }} />
-              <Bar dataKey="weight" fill="#f97316" radius={[0, 4, 4, 0]} barSize={20} isAnimationActive={false} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <RankedBars rows={rows} color="var(--series-2)" ariaLabel="Risk drivers by share of model weight" />
       )}
     </ChartPanel>
   );

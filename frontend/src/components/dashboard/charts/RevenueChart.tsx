@@ -1,84 +1,101 @@
 "use client";
 
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { DollarCircleIcon } from "hugeicons-react";
+import { useState } from "react";
+import { DollarSign } from "lucide-react";
 import { useDashboardStore } from "@/store/dashboard";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ChartPanel, tooltipStyle } from "./ChartPanel";
+import { LineChart, type LineSeries } from "@/components/charts/LineChart";
+import { DivergingBars } from "@/components/charts/DivergingBars";
+import { Num } from "@/components/ui/num";
+import { money, moneyCompact } from "@/lib/format";
+import { ChartPanel } from "./ChartPanel";
 
+const MRR: LineSeries[] = [{ key: "mrr", label: "MRR", color: "var(--series-1)", area: true }];
+
+/**
+ * MRR over the selected range. The figure under the title follows the
+ * crosshair - scrub the chart and the number slides to that period - and
+ * returns to the latest value when the pointer leaves.
+ */
 export function RevenueChart() {
-  // Now sourced from /api/dashboard/revenue; this chart previously rendered a
-  // fixed mock series regardless of the workspace's actual revenue.
-  const { revenue } = useDashboardStore();
+  const { revenue, loading, loaded } = useDashboardStore();
+  const [active, setActive] = useState<number | null>(null);
+  const point = revenue.length ? revenue[active ?? revenue.length - 1] : null;
 
   return (
     <ChartPanel
-      title="Revenue Impact"
-      description="MRR, new revenue and churned revenue over time"
-      legend={[
-        { label: "MRR", color: "#6366f1" },
-        { label: "New", color: "#10b981" },
-        { label: "Churned", color: "#ef4444" },
-      ]}
+      title="Monthly recurring revenue"
+      description="Revenue on the books in each period"
+      dimmed={loading && loaded}
+      headline={
+        point ? (
+          <div className="flex items-baseline gap-2">
+            <Num value={point.mrr} format={money} className="text-[22px] font-semibold leading-7 tracking-[-0.015em] text-foreground" />
+            <span className="text-[12px] text-muted-foreground">{active === null ? `latest · ${point.month}` : point.month}</span>
+          </div>
+        ) : undefined
+      }
     >
       {revenue.length === 0 ? (
-        <EmptyState
-          compact
-          icon={DollarCircleIcon}
-          title="No revenue history"
-          description="Import customers with MRR to see revenue movement."
-        />
+        loaded ? (
+          <EmptyState icon={DollarSign} title="No revenue data" description="Add MRR to your import or connect Stripe." compact />
+        ) : (
+          <div className="h-[220px]" />
+        )
       ) : (
-        <div className="h-full min-h-[280px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={revenue} margin={{ top: 5, right: 8, left: -4, bottom: 0 }}>
-              <defs>
-                <linearGradient id="mrrGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="newRevGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" vertical={false} />
-              <XAxis dataKey="month" stroke="#a3a3a3" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis
-                stroke="#a3a3a3"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                width={52}
-                tickFormatter={(v) => (v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`)}
-              />
-              <Tooltip
-                contentStyle={tooltipStyle}
-                formatter={(value: number, name) => [`$${value.toLocaleString()}`, name]}
-              />
-              <Area type="monotone" dataKey="mrr" stroke="#6366f1" fill="url(#mrrGradient)" strokeWidth={2} name="MRR" isAnimationActive={false} />
-              <Area type="monotone" dataKey="newRevenue" stroke="#10b981" fill="url(#newRevGradient)" strokeWidth={2} name="New revenue" isAnimationActive={false} />
-              <Area
-                type="monotone"
-                dataKey="churnedRevenue"
-                stroke="#ef4444"
-                fill="none"
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                name="Churned revenue"
-                isAnimationActive={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+        <LineChart
+          data={revenue as unknown as Record<string, number | string>[]}
+          xKey="month"
+          series={MRR}
+          height={220}
+          format={money}
+          tickFormat={moneyCompact}
+          ariaLabel="Monthly recurring revenue"
+          onActiveChange={setActive}
+        />
+      )}
+    </ChartPanel>
+  );
+}
+
+/** New revenue above the line, churned revenue below - on their own scale. */
+export function NetRevenueChart() {
+  const { revenue, loading, loaded } = useDashboardStore();
+
+  return (
+    <ChartPanel
+      title="Revenue movement"
+      description="Gained from new customers vs lost to churn"
+      dimmed={loading && loaded}
+      legend={
+        revenue.length > 0 ? (
+          <ul className="flex items-center gap-3 text-[12px] text-muted-foreground">
+            <li className="flex items-center gap-1.5">
+              <span aria-hidden className="size-2 rounded-[2px] bg-[var(--div-pos)]" />
+              New
+            </li>
+            <li className="flex items-center gap-1.5">
+              <span aria-hidden className="size-2 rounded-[2px] bg-[var(--div-neg)]" />
+              Churned
+            </li>
+          </ul>
+        ) : undefined
+      }
+    >
+      {revenue.length === 0 ? (
+        loaded ? (
+          <EmptyState icon={DollarSign} title="No movement yet" description="Signups and churn will show here." compact />
+        ) : (
+          <div className="h-[200px]" />
+        )
+      ) : (
+        <DivergingBars
+          data={revenue.map((r) => ({ label: r.month, pos: r.newRevenue, neg: r.churnedRevenue }))}
+          posLabel="new"
+          negLabel="churned"
+          format={moneyCompact}
+          ariaLabel="New and churned revenue by period"
+        />
       )}
     </ChartPanel>
   );

@@ -50,14 +50,14 @@ export function AuthLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-card">
       {/* Form pane */}
       <div className="flex w-full flex-col px-5 py-8 sm:px-10 lg:w-[52%] lg:px-16">
         <div className="flex items-center justify-between">
           <Logo href="/" />
           <Link
             href="/"
-            className="flex items-center gap-1 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+            className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft01Icon size={16} />
             Back to site
@@ -66,17 +66,17 @@ export function AuthLayout({
 
         <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-12">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               {title}
             </h1>
-            <p className="mt-2 text-sm text-neutral-500">{subtitle}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
           {/* Segmented control, styled like the dashboard's time-range switch. */}
           <div
             role="tablist"
             aria-label="Authentication mode"
-            className="mt-7 flex gap-1 rounded-lg border border-neutral-200 bg-[#FCFCFC] p-1"
+            className="mt-7 flex gap-1 rounded-lg border border-border bg-[#FCFCFC] p-1"
           >
             {(
               [
@@ -95,8 +95,8 @@ export function AuthLayout({
                   className={cn(
                     "flex-1 rounded-md py-2 text-center text-sm font-medium transition-colors",
                     active
-                      ? "border border-neutral-200 bg-white text-neutral-900 shadow-sm"
-                      : "text-neutral-500 hover:text-neutral-900"
+                      ? "border border-border bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {tab.label}
@@ -108,31 +108,31 @@ export function AuthLayout({
           <div className="mt-7">{children}</div>
         </div>
 
-        <p className="text-center text-xs text-neutral-400">
+        <p className="text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} ChurnRate ·{" "}
-          <Link href="/" className="transition-colors hover:text-neutral-600">
+          <Link href="/" className="transition-colors hover:text-subtle">
             Terms
           </Link>{" "}
           ·{" "}
-          <Link href="/" className="transition-colors hover:text-neutral-600">
+          <Link href="/" className="transition-colors hover:text-subtle">
             Privacy
           </Link>
         </p>
       </div>
 
       {/* Context pane — same tokens as the product, no separate visual language. */}
-      <div className="relative hidden border-l border-neutral-200 bg-[#FCFCFC] lg:flex lg:w-[48%] lg:flex-col lg:justify-center lg:px-14">
+      <div className="relative hidden border-l border-border bg-[#FCFCFC] lg:flex lg:w-[48%] lg:flex-col lg:justify-center lg:px-14">
         <div className="grid-backdrop absolute inset-0 opacity-60" aria-hidden="true" />
         <div
-          className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-indigo-50 to-transparent"
+          className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-brand-muted to-transparent"
           aria-hidden="true"
         />
 
         <div className="relative max-w-md">
-          <h2 className="text-2xl font-bold leading-snug tracking-tight text-neutral-900">
+          <h2 className="text-2xl font-bold leading-snug tracking-tight text-foreground">
             Predict churn from the data you already have.
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+          <p className="mt-3 text-sm leading-relaxed text-subtle">
             No schema to conform to and no integration project. Bring an export, get scored
             accounts.
           </p>
@@ -142,12 +142,12 @@ export function AuthLayout({
               const Icon = item.icon;
               return (
                 <div key={item.title} className="panel flex items-start gap-3.5 p-4">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-muted text-brand">
                     <Icon size={18} />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-neutral-900">{item.title}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-neutral-500">
+                    <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
                       {item.body}
                     </p>
                   </div>

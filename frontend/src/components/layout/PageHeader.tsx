@@ -11,30 +11,23 @@ export function PageHeader({
   children,
   className,
 }: {
-  title: string;
-  description: string;
+  title: React.ReactNode;
+  description: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
-        className
-      )}
-    >
+    <div className={cn("mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4", className)}>
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{title}</h1>
-        <p className="mt-1 text-sm text-neutral-500">{description}</p>
+        <h1 className="text-[22px] font-semibold leading-7 tracking-[-0.015em] text-foreground">{title}</h1>
+        <p className="mt-1 text-[13px] text-muted-foreground">{description}</p>
       </div>
-      {children && (
-        <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{children}</div>
-      )}
+      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
     </div>
   );
 }
 
-/** Consistent page padding, used by every route. */
+/** Consistent page width and padding, used by every route. */
 export function PageContainer({
   children,
   className,
@@ -42,5 +35,7 @@ export function PageContainer({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={cn("p-4 sm:p-6", className)}>{children}</div>;
+  return (
+    <div className={cn("mx-auto w-full max-w-[1200px] px-4 pb-12 pt-6 sm:px-6 sm:pt-8", className)}>{children}</div>
+  );
 }

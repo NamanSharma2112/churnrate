@@ -3,6 +3,7 @@ import { AuthWrapper } from "@/components/AuthWrapper";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { themeBootScript } from "@/lib/theme";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -23,6 +24,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("font-sans", geist.variable)}
     >
+      <head>
+        {/* Applies the saved theme before first paint, so dark mode never flashes white. */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       {/*
         The shell used to be `flex h-screen overflow-hidden`, which clipped any
         page taller than the viewport with no way to scroll to the rest.

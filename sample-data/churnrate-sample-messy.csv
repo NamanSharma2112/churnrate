@@ -1,0 +1,28 @@
+Account Name,Contact Email,Full Name,Subscription Tier,Monthly Revenue,Customer Since,Last Seen,Account Health,Open Tickets,Region
+Brightloop,elena.reyes0@brightloop-demo.com,Elena Reyes,Basic,$49,08/08/2026,11/15/2026,88%,0,LATAM
+Northwind Labs,mia.tanaka1@northwindlabs-demo.com,Mia Tanaka,Trial,$0,02/22/2025,11/03/2026,71%,0,NA
+Cobalt Systems,cleo.smith2@cobaltsystems-demo.com,Cleo Smith,Gold,$299,07/26/2026,10/21/2026,52%,7,LATAM
+Pinecrest Analytics,finn.rossi3@pinecrestanalytics-demo.com,Finn Rossi,Trial,$0,02/16/2025,11/13/2026,73%,2,APAC
+Harbor Logistics,ivy.meyer4@harborlogistics-demo.com,Ivy Meyer,Gold,$299,04/09/2025,11/14/2026,91%,0,APAC
+Lumen Health,noah.costa5@lumenhealth-demo.com,Noah Costa,Platinum,$899,01/20/2026,11/05/2026,92%,2,EMEA
+Quartz Software,ivy.okafor6@quartzsoftware-demo.com,Ivy Okafor,Basic,$49,04/21/2025,11/06/2026,73%,3,EMEA
+Redwood Media,leo.haddad7@redwoodmedia-demo.com,Leo Haddad,Basic,$49,10/11/2025,10/07/2026,63%,6,APAC
+Skyline Payments,liam.khan8@skylinepayments-demo.com,Liam Khan,Gold,$299,07/19/2026,11/02/2026,92%,0,NA
+Tidal Works,eli.haddad9@tidalworks-demo.com,Eli Haddad,Platinum,$899,08/06/2026,10/08/2026,56%,5,NA
+Vertex Cloud,elena.novak10@vertexcloud-demo.com,Elena Novak,Trial,$0,09/01/2025,11/15/2026,82%,1,APAC
+Willow Retail,hugo.berg11@willowretail-demo.com,Hugo Berg,Basic,$49,12/09/2025,10/30/2026,87%,2,NA
+Zenith Learning,luna.tanaka12@zenithlearning-demo.com,Luna Tanaka,Gold,$299,09/08/2025,06/12/2026,14%,9,EMEA
+Ember Foods,nora.singh13@emberfoods-demo.com,Nora Singh,Platinum,$899,04/03/2025,11/11/2026,83%,2,NA
+Atlas Robotics,owen.kim14@atlasrobotics-demo.com,Owen Kim,Platinum,$899,08/09/2025,10/31/2026,82%,0,APAC
+Beacon HR,aria.nguyen15@beaconhr-demo.com,Aria Nguyen,Basic,$49,10/18/2025,11/10/2026,73%,0,LATAM
+Crestline Legal,aria.lopez16@crestlinelegal-demo.com,Aria Lopez,Gold,$299,02/20/2026,10/30/2026,72%,0,LATAM
+Driftwood Travel,maya.novak17@driftwoodtravel-demo.com,Maya Novak,Basic,$49,06/06/2025,11/05/2026,85%,2,LATAM
+Evergreen Energy,lucas.reyes18@evergreenenergy-demo.com,Lucas Reyes,Trial,$0,09/04/2026,11/06/2026,86%,2,EMEA
+Fable Studios,jack.haddad19@fablestudios-demo.com,Jack Haddad,Gold,$299,01/13/2026,11/16/2026,92%,2,APAC
+Granite Security,kenji.lopez20@granitesecurity-demo.com,Kenji Lopez,Basic,$49,10/10/2025,07/22/2026,17%,14,EMEA
+Helix Biotech,mason.rossi21@helixbiotech-demo.com,Mason Rossi,Basic,$49,05/01/2025,10/06/2026,53%,6,LATAM
+Ionic Mobility,maya.rossi22@ionicmobility-demo.com,Maya Rossi,Platinum,$899,01/09/2026,10/08/2026,48%,5,LATAM
+Juniper Finance,elena.lopez23@juniperfinance-demo.com,Elena Lopez,Basic,$49,06/07/2026,11/16/2026,96%,3,LATAM
+Duplicate Email Co,finn.rossi3@pinecrestanalytics-demo.com,Elena Reyes,Basic,$49,08/08/2026,11/15/2026,88%,0,LATAM
+Broken Email Co,not-an-email,Elena Reyes,Basic,$49,08/08/2026,11/15/2026,88%,0,LATAM
+Missing Email Co,,Elena Reyes,Basic,$49,08/08/2026,11/15/2026,88%,0,LATAM

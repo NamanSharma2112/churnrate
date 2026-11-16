@@ -1,14 +1,5 @@
-import type { CSSProperties } from "react";
-
-/** Shared Recharts tooltip chrome, matching the app's card styling. */
-export const tooltipStyle: CSSProperties = {
-  backgroundColor: "#ffffff",
-  border: "1px solid #e5e5e5",
-  borderRadius: "8px",
-  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-  fontSize: "12px",
-  color: "#262626",
-};
+import { cn } from "@/lib/utils";
+import { CARD } from "@/lib/ui";
 
 /**
  * One panel wrapper for every chart, so headings, padding and legends stay
@@ -19,37 +10,40 @@ export function ChartPanel({
   description,
   legend,
   action,
+  headline,
   children,
+  className,
+  dimmed,
 }: {
   title: string;
-  description: string;
-  legend?: { label: string; color: string }[];
+  description?: string;
+  legend?: React.ReactNode;
   action?: React.ReactNode;
+  /** A figure under the title - e.g. the value under the crosshair. */
+  headline?: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
+  /** While a refetch runs, the chart holds its last frame at reduced opacity. */
+  dimmed?: boolean;
 }) {
   return (
-    <div className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+    <section className={cn(CARD, "flex min-w-0 flex-col", className)}>
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 px-4 pb-1 pt-3.5">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
-          <p className="mt-0.5 text-xs text-neutral-500">{description}</p>
+          <h2 className="text-[14px] font-semibold text-foreground">{title}</h2>
+          {description && <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>}
         </div>
-        {legend && (
+        {(legend || action) && (
           <div className="flex flex-wrap items-center gap-3">
-            {legend.map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5">
-                <span
-                  className="size-2 rounded-full"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="text-xs text-neutral-500">{item.label}</span>
-              </div>
-            ))}
+            {legend}
+            {action}
           </div>
         )}
-        {action}
       </div>
-      <div className="min-w-0 flex-1">{children}</div>
-    </div>
+      {headline && <div className="px-4 pt-1">{headline}</div>}
+      <div className={cn("min-w-0 flex-1 px-4 pb-4 pt-3 transition-opacity duration-200", dimmed && "opacity-55")}>
+        {children}
+      </div>
+    </section>
   );
 }

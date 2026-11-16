@@ -1,0 +1,61 @@
+email,name,company,plan,mrr,signup_date,last_active,health_score,support_tickets,feature_usage_pct,login_frequency,nps_score,contract_value,customer_id
+elena.reyes0@brightloop-demo.com,Elena Reyes,Brightloop,Starter,49,2026-08-08,2026-11-15,88,0,84,15,9,588,CUS-1001
+mia.tanaka1@northwindlabs-demo.com,Mia Tanaka,Northwind Labs,Free,0,2025-02-22,2026-11-03,71,0,65,14,10,0,CUS-1002
+cleo.smith2@cobaltsystems-demo.com,Cleo Smith,Cobalt Systems,Pro,299,2026-07-26,2026-10-21,52,7,46,10,5,3588,CUS-1003
+finn.rossi3@pinecrestanalytics-demo.com,Finn Rossi,Pinecrest Analytics,Free,0,2025-02-16,2026-11-13,73,2,85,38,8,0,CUS-1004
+ivy.meyer4@harborlogistics-demo.com,Ivy Meyer,Harbor Logistics,Pro,299,2025-04-09,2026-11-14,91,0,89,18,10,3588,CUS-1005
+noah.costa5@lumenhealth-demo.com,Noah Costa,Lumen Health,Enterprise,899,2026-01-20,2026-11-05,92,2,65,37,8,10788,CUS-1006
+ivy.okafor6@quartzsoftware-demo.com,Ivy Okafor,Quartz Software,Starter,49,2025-04-21,2026-11-06,73,3,68,31,7,588,CUS-1007
+leo.haddad7@redwoodmedia-demo.com,Leo Haddad,Redwood Media,Starter,49,2025-10-11,2026-10-07,63,6,29,5,7,588,CUS-1008
+liam.khan8@skylinepayments-demo.com,Liam Khan,Skyline Payments,Pro,299,2026-07-19,2026-11-02,92,0,55,20,10,3588,CUS-1009
+eli.haddad9@tidalworks-demo.com,Eli Haddad,Tidal Works,Enterprise,899,2026-08-06,2026-10-08,56,5,50,10,7,10788,CUS-1010
+elena.novak10@vertexcloud-demo.com,Elena Novak,Vertex Cloud,Free,0,2025-09-01,2026-11-15,82,1,68,16,8,0,CUS-1011
+hugo.berg11@willowretail-demo.com,Hugo Berg,Willow Retail,Starter,49,2025-12-09,2026-10-30,87,2,58,38,10,588,CUS-1012
+luna.tanaka12@zenithlearning-demo.com,Luna Tanaka,Zenith Learning,Pro,299,2025-09-08,2026-06-12,14,9,6,0,1,3588,CUS-1013
+nora.singh13@emberfoods-demo.com,Nora Singh,Ember Foods,Enterprise,899,2025-04-03,2026-11-11,83,2,68,12,8,10788,CUS-1014
+owen.kim14@atlasrobotics-demo.com,Owen Kim,Atlas Robotics,Enterprise,899,2025-08-09,2026-10-31,82,0,79,40,10,10788,CUS-1015
+aria.nguyen15@beaconhr-demo.com,Aria Nguyen,Beacon HR,Starter,49,2025-10-18,2026-11-10,73,0,63,26,8,588,CUS-1016
+aria.lopez16@crestlinelegal-demo.com,Aria Lopez,Crestline Legal,Pro,299,2026-02-20,2026-10-30,72,0,73,31,7,3588,CUS-1017
+maya.novak17@driftwoodtravel-demo.com,Maya Novak,Driftwood Travel,Starter,49,2025-06-06,2026-11-05,85,2,80,15,7,588,CUS-1018
+lucas.reyes18@evergreenenergy-demo.com,Lucas Reyes,Evergreen Energy,Free,0,2026-09-04,2026-11-06,86,2,80,38,8,0,CUS-1019
+jack.haddad19@fablestudios-demo.com,Jack Haddad,Fable Studios,Pro,299,2026-01-13,2026-11-16,92,2,91,39,7,3588,CUS-1020
+kenji.lopez20@granitesecurity-demo.com,Kenji Lopez,Granite Security,Starter,49,2025-10-10,2026-07-22,17,14,19,2,1,588,CUS-1021
+mason.rossi21@helixbiotech-demo.com,Mason Rossi,Helix Biotech,Starter,49,2025-05-01,2026-10-06,53,6,39,4,5,588,CUS-1022
+maya.rossi22@ionicmobility-demo.com,Maya Rossi,Ionic Mobility,Enterprise,899,2026-01-09,2026-10-08,48,5,39,5,5,10788,CUS-1023
+elena.lopez23@juniperfinance-demo.com,Elena Lopez,Juniper Finance,Starter,49,2026-06-07,2026-11-16,96,3,91,23,7,588,CUS-1024
+eli.lopez24@kestreldrones-demo.com,Eli Lopez,Kestrel Drones,Pro,299,2025-07-19,2026-10-07,68,4,41,9,5,3588,CUS-1025
+priya.smith25@latticedata-demo.com,Priya Smith,Lattice Data,Free,0,2025-05-19,2026-10-17,63,4,32,4,5,0,CUS-1026
+priya.kim26@meridianrealty-demo.com,Priya Kim,Meridian Realty,Pro,299,2026-09-08,2026-11-01,70,2,59,29,8,3588,CUS-1027
+jack.tanaka27@nimbustelecom-demo.com,Jack Tanaka,Nimbus Telecom,Enterprise,899,2025-11-29,2026-11-03,76,1,63,12,9,10788,CUS-1028
+arjun.sato28@orchidbeauty-demo.com,Arjun Sato,Orchid Beauty,Starter,49,2025-08-29,2026-10-05,68,6,54,6,5,588,CUS-1029
+jack.patel29@paragoninsurance-demo.com,Jack Patel,Paragon Insurance,Pro,299,2025-03-09,2026-10-06,49,6,54,6,7,3588,CUS-1030
+liam.meyer30@brightloopgroup-demo.com,Liam Meyer,Brightloop Group,Pro,299,2025-01-15,2026-09-16,12,8,7,1,3,3588,CUS-1031
+liam.kim31@northwindlabsgroup-demo.com,Liam Kim,Northwind Labs Group,Pro,299,2025-11-18,2026-10-07,51,3,45,4,5,3588,CUS-1032
+eli.reyes32@cobaltsystemsgroup-demo.com,Eli Reyes,Cobalt Systems Group,Pro,299,2025-12-26,2026-11-14,92,3,70,31,8,3588,CUS-1033
+ethan.berg33@pinecrestanalyticsgroup-demo.com,Ethan Berg,Pinecrest Analytics Group,Starter,49,2025-06-29,2026-11-09,96,2,85,40,8,588,CUS-1034
+priya.kim34@harborlogisticsgroup-demo.com,Priya Kim,Harbor Logistics Group,Starter,49,2025-11-29,2026-11-14,91,1,77,14,8,588,CUS-1035
+owen.novak35@lumenhealthgroup-demo.com,Owen Novak,Lumen Health Group,Starter,49,2026-01-31,2026-06-16,19,8,10,1,3,588,CUS-1036
+lucas.haddad36@quartzsoftwaregroup-demo.com,Lucas Haddad,Quartz Software Group,Pro,299,2025-07-26,2026-11-09,80,1,95,25,10,3588,CUS-1037
+owen.meyer37@redwoodmediagroup-demo.com,Owen Meyer,Redwood Media Group,Pro,299,2026-09-19,2026-11-16,92,2,85,26,10,3588,CUS-1038
+mason.nguyen38@skylinepaymentsgroup-demo.com,Mason Nguyen,Skyline Payments Group,Starter,49,2026-01-07,2026-11-14,72,0,64,40,7,588,CUS-1039
+elena.reyes39@tidalworksgroup-demo.com,Elena Reyes,Tidal Works Group,Starter,49,2025-01-03,2026-08-15,14,12,23,2,3,588,CUS-1040
+mason.patel40@vertexcloudgroup-demo.com,Mason Patel,Vertex Cloud Group,Pro,299,2026-07-23,2026-11-14,83,2,53,37,8,3588,CUS-1041
+eli.patel41@willowretailgroup-demo.com,Eli Patel,Willow Retail Group,Pro,299,2026-05-09,2026-10-20,53,7,55,7,5,3588,CUS-1042
+mason.nguyen42@zenithlearninggroup-demo.com,Mason Nguyen,Zenith Learning Group,Pro,299,2026-04-17,2026-11-08,73,1,52,28,8,3588,CUS-1043
+priya.patel43@emberfoodsgroup-demo.com,Priya Patel,Ember Foods Group,Enterprise,899,2025-10-08,2026-11-07,78,1,68,26,8,10788,CUS-1044
+elena.sato44@atlasroboticsgroup-demo.com,Elena Sato,Atlas Robotics Group,Free,0,2025-11-26,2026-09-13,35,14,19,1,4,0,CUS-1045
+hugo.rossi45@beaconhrgroup-demo.com,Hugo Rossi,Beacon HR Group,Pro,299,2025-11-13,2026-11-03,86,3,84,38,10,3588,CUS-1046
+theo.silva46@crestlinelegalgroup-demo.com,Theo Silva,Crestline Legal Group,Starter,49,2026-04-23,2026-08-13,5,12,13,0,1,588,CUS-1047
+zoe.okafor47@driftwoodtravelgroup-demo.com,Zoe Okafor,Driftwood Travel Group,Free,0,2025-06-12,2026-11-04,71,2,88,19,9,0,CUS-1048
+lucas.haddad48@evergreenenergygroup-demo.com,Lucas Haddad,Evergreen Energy Group,Free,0,2025-11-14,2026-11-05,71,2,85,22,8,0,CUS-1049
+omar.patel49@fablestudiosgroup-demo.com,Omar Patel,Fable Studios Group,Starter,49,2025-05-07,2026-11-14,77,3,67,28,8,588,CUS-1050
+ruby.tanaka50@granitesecuritygroup-demo.com,Ruby Tanaka,Granite Security Group,Pro,299,2025-12-01,2026-11-12,70,3,87,13,10,3588,CUS-1051
+nina.singh51@helixbiotechgroup-demo.com,Nina Singh,Helix Biotech Group,Enterprise,899,2025-12-17,2026-11-12,74,3,70,35,10,10788,CUS-1052
+kenji.patel52@ionicmobilitygroup-demo.com,Kenji Patel,Ionic Mobility Group,Free,0,2025-01-22,2026-10-06,61,6,51,6,7,0,CUS-1053
+owen.sato53@juniperfinancegroup-demo.com,Owen Sato,Juniper Finance Group,Pro,299,2026-02-24,2026-07-21,28,7,2,0,1,3588,CUS-1054
+nina.reyes54@kestreldronesgroup-demo.com,Nina Reyes,Kestrel Drones Group,Pro,299,2026-07-11,2026-10-30,84,1,81,20,7,3588,CUS-1055
+isla.rossi55@latticedatagroup-demo.com,Isla Rossi,Lattice Data Group,Free,0,2025-06-29,2026-05-06,9,7,25,3,2,0,CUS-1056
+omar.nguyen56@meridianrealtygroup-demo.com,Omar Nguyen,Meridian Realty Group,Pro,299,2025-12-03,2026-11-02,91,3,74,14,10,3588,CUS-1057
+ethan.patel57@nimbustelecomgroup-demo.com,Ethan Patel,Nimbus Telecom Group,Pro,299,2025-03-03,2026-11-14,89,1,71,20,9,3588,CUS-1058
+ruby.sato58@orchidbeautygroup-demo.com,Ruby Sato,Orchid Beauty Group,Starter,49,2025-04-24,2026-11-13,92,1,93,27,9,588,CUS-1059
+eli.garcia59@paragoninsurancegroup-demo.com,Eli Garcia,Paragon Insurance Group,Pro,299,2025-11-28,2026-10-30,70,1,69,14,10,3588,CUS-1060

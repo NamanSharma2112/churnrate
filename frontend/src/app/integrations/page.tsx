@@ -145,13 +145,13 @@ export default function IntegrationsPage() {
       />
 
       {error && (
-        <div className="mb-6 flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-6 flex items-start gap-2.5 rounded-lg border border-red-500/25 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
           <Alert01Icon size={18} className="mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
       {notice && (
-        <div className="mb-6 flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+        <div className="mb-6 flex items-start gap-2.5 rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">
           <CheckmarkCircle01Icon size={18} className="mt-0.5 shrink-0" />
           <span>{notice}</span>
         </div>
@@ -160,14 +160,14 @@ export default function IntegrationsPage() {
       <div className="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <div className="panel">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4 sm:p-5">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-[#635BFF]/10 text-[#635BFF]">
                   <CreditCardIcon size={22} />
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold text-neutral-900">Stripe</h3>
-                  <p className="text-sm text-neutral-500">
+                  <h3 className="text-base font-semibold text-foreground">Stripe</h3>
+                  <p className="text-sm text-muted-foreground">
                     Subscriptions, MRR, failed payments and cancellations
                   </p>
                 </div>
@@ -177,14 +177,14 @@ export default function IntegrationsPage() {
                 className={cn(
                   "flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
                   stripe
-                    ? "bg-emerald-50 text-emerald-600"
-                    : "bg-neutral-100 text-neutral-500"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "bg-accent text-muted-foreground"
                 )}
               >
                 <span
                   className={cn(
                     "size-1.5 rounded-full",
-                    stripe ? "bg-emerald-500" : "bg-neutral-400"
+                    stripe ? "bg-emerald-500" : "bg-muted-foreground"
                   )}
                 />
                 {stripe ? "Connected" : "Not connected"}
@@ -195,36 +195,36 @@ export default function IntegrationsPage() {
               <div className="p-4 sm:p-5">
                 <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+                    <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Account
                     </dt>
-                    <dd className="mt-1 text-sm text-neutral-900">
+                    <dd className="mt-1 text-sm text-foreground">
                       {stripe.accountName ?? "—"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+                    <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       API key
                     </dt>
-                    <dd className="mt-1 font-mono text-sm text-neutral-900">
+                    <dd className="mt-1 font-mono text-sm text-foreground">
                       {stripe.keyHint ?? "••••"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+                    <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Last sync
                     </dt>
-                    <dd className="mt-1 text-sm text-neutral-900">
+                    <dd className="mt-1 text-sm text-foreground">
                       {stripe.lastSyncedAt
                         ? new Date(stripe.lastSyncedAt).toLocaleString()
                         : "Never"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+                    <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Last result
                     </dt>
-                    <dd className="mt-1 text-sm text-neutral-900">
+                    <dd className="mt-1 text-sm text-foreground">
                       {stripe.lastSyncStats
                         ? `${stripe.lastSyncStats.imported ?? 0} added, ${
                             stripe.lastSyncStats.updated ?? 0
@@ -239,7 +239,7 @@ export default function IntegrationsPage() {
                     type="button"
                     onClick={sync}
                     disabled={syncing}
-                    className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-60"
+                    className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-hover disabled:opacity-60"
                   >
                     {syncing ? (
                       <Loading01Icon size={16} className="animate-spin" />
@@ -251,21 +251,21 @@ export default function IntegrationsPage() {
                   <button
                     type="button"
                     onClick={disconnect}
-                    className="rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                    className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 transition-colors hover:bg-red-500/10"
                   >
                     Disconnect
                   </button>
                 </div>
 
-                <div className="mt-6 rounded-lg border border-neutral-200 bg-[#FCFCFC] p-4">
-                  <p className="text-xs font-medium text-neutral-700">
+                <div className="mt-6 rounded-lg border border-border bg-[#FCFCFC] p-4">
+                  <p className="text-xs font-medium text-subtle">
                     Keep scores live with a webhook
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                     Add this endpoint in Stripe → Developers → Webhooks. Subscription and
                     invoice events will re-score the affected customer immediately.
                   </p>
-                  <code className="mt-2 block overflow-x-auto rounded border border-neutral-200 bg-white px-3 py-2 font-mono text-xs text-neutral-700">
+                  <code className="mt-2 block overflow-x-auto rounded border border-border bg-card px-3 py-2 font-mono text-xs text-subtle">
                     {webhookUrl}
                   </code>
                 </div>
@@ -276,14 +276,14 @@ export default function IntegrationsPage() {
                   <div>
                     <label
                       htmlFor="stripe-key"
-                      className="mb-1.5 block text-sm font-medium text-neutral-700"
+                      className="mb-1.5 block text-sm font-medium text-subtle"
                     >
                       Stripe secret key
                     </label>
                     <div className="relative">
                       <LockKeyIcon
                         size={17}
-                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                       />
                       <input
                         id="stripe-key"
@@ -293,10 +293,10 @@ export default function IntegrationsPage() {
                         onChange={(event) => setApiKey(event.target.value)}
                         placeholder="sk_live_… or rk_live_…"
                         autoComplete="off"
-                        className="h-11 w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-3 font-mono text-sm text-neutral-900 shadow-sm outline-none transition-colors placeholder:font-sans placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                        className="h-11 w-full rounded-lg border border-border bg-card pl-10 pr-3 font-mono text-sm text-foreground shadow-sm outline-none transition-colors placeholder:font-sans placeholder:text-muted-foreground focus:border-brand focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
-                    <p className="mt-1.5 text-xs text-neutral-500">
+                    <p className="mt-1.5 text-xs text-muted-foreground">
                       A restricted key with read access to Customers and Subscriptions is
                       enough. Keys are encrypted before storage and never shown again.
                     </p>
@@ -305,10 +305,10 @@ export default function IntegrationsPage() {
                   <div>
                     <label
                       htmlFor="stripe-webhook"
-                      className="mb-1.5 block text-sm font-medium text-neutral-700"
+                      className="mb-1.5 block text-sm font-medium text-subtle"
                     >
                       Webhook signing secret
-                      <span className="ml-1 font-normal text-neutral-400">(optional)</span>
+                      <span className="ml-1 font-normal text-muted-foreground">(optional)</span>
                     </label>
                     <input
                       id="stripe-webhook"
@@ -317,9 +317,9 @@ export default function IntegrationsPage() {
                       onChange={(event) => setWebhookSecret(event.target.value)}
                       placeholder="whsec_…"
                       autoComplete="off"
-                      className="h-11 w-full rounded-lg border border-neutral-200 bg-white px-3 font-mono text-sm text-neutral-900 shadow-sm outline-none transition-colors placeholder:font-sans placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                      className="h-11 w-full rounded-lg border border-border bg-card px-3 font-mono text-sm text-foreground shadow-sm outline-none transition-colors placeholder:font-sans placeholder:text-muted-foreground focus:border-brand focus:ring-2 focus:ring-brand/20"
                     />
-                    <p className="mt-1.5 text-xs text-neutral-500">
+                    <p className="mt-1.5 text-xs text-muted-foreground">
                       Add this to verify incoming webhooks and re-score customers in real
                       time.
                     </p>
@@ -329,7 +329,7 @@ export default function IntegrationsPage() {
                 <button
                   type="submit"
                   disabled={connecting || apiKey.trim().length < 20}
-                  className="mt-5 flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-5 flex items-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {connecting && <Loading01Icon size={16} className="animate-spin" />}
                   {connecting ? "Verifying…" : "Connect Stripe"}
@@ -341,7 +341,7 @@ export default function IntegrationsPage() {
 
         <div className="space-y-4 sm:space-y-6">
           <div className="panel p-4 sm:p-5">
-            <h3 className="text-sm font-semibold text-neutral-900">
+            <h3 className="text-sm font-semibold text-foreground">
               What syncing brings in
             </h3>
             <ul className="mt-3 space-y-2.5">
@@ -351,10 +351,10 @@ export default function IntegrationsPage() {
                 "Cancellations and scheduled cancellations",
                 "Failed payments, treated as a risk signal",
               ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-xs text-neutral-600">
+                <li key={item} className="flex items-start gap-2 text-xs text-subtle">
                   <CheckmarkCircle01Icon
                     size={14}
-                    className="mt-0.5 shrink-0 text-emerald-500"
+                    className="mt-0.5 shrink-0 text-emerald-500 dark:text-emerald-400"
                   />
                   {item}
                 </li>
@@ -363,8 +363,8 @@ export default function IntegrationsPage() {
           </div>
 
           <div className="panel p-4 sm:p-5">
-            <h3 className="text-sm font-semibold text-neutral-900">Where to find your key</h3>
-            <p className="mt-2 text-xs leading-relaxed text-neutral-500">
+            <h3 className="text-sm font-semibold text-foreground">Where to find your key</h3>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
               In the Stripe Dashboard, open Developers → API keys. Create a restricted key
               with read permission on Customers and Subscriptions rather than using your
               live secret key.
@@ -373,7 +373,7 @@ export default function IntegrationsPage() {
               href="https://dashboard.stripe.com/apikeys"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:text-brand"
             >
               Open Stripe API keys
               <LinkSquare02Icon size={13} />

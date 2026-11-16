@@ -1,75 +1,129 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* `.dark` on <html> (the app's theme toggle) or on any container (the landing
+   page, which is always dark) switches every token below it. */
+@custom-variant dark (&:is(.dark *, .dark));
 
+/*
+  Tokens, not raw colors. Pages style themselves with `bg-card`, `text-subtle`,
+  `border-border` and so on, so one block per theme repaints the whole product.
+
+  Ink scale: foreground (titles, values) > subtle (body, labels) > muted-foreground
+  (meta, timestamps). Chart colors are the validated categorical slots from the
+  data-viz palette, stepped separately for each surface - not a flipped copy.
+*/
 :root {
-  --background: #FFFFFF;
-  --foreground: #262626;
-  --card: #FFFFFF;
-  --card-foreground: #262626;
-  --popover: #FFFFFF;
-  --popover-foreground: #262626;
-  --primary: #262626;
-  --primary-foreground: #FCFCFC;
-  --secondary: #FCFCFC;
-  --secondary-foreground: #262626;
-  --muted: #FCFCFC;
-  --muted-foreground: #737373;
-  --accent: #f5f5f5;
-  --accent-foreground: #262626;
-  --destructive: #ef4444;
-  --destructive-foreground: #FFFFFF;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #d4d4d4;
-  --brand: #4f46e5;
+  color-scheme: light;
+  --background: #fbfbfb;
+  --foreground: #18181b;
+  --subtle: #52525b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #18181b;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #6b6b74;
+  --accent: #f1f1f3;
+  --accent-foreground: #18181b;
+  --destructive: #c4242a;
+  --destructive-foreground: #ffffff;
+  --border: #e8e8ea;
+  --input: #dcdce0;
+  --ring: #1f6bff;
+  --brand: #1f6bff;
+  --brand-hover: #1a5ee6;
   --brand-foreground: #ffffff;
-  --brand-muted: #eef2ff;
-  --brand-border: #c7d2fe;
-  --surface: #fcfcfc;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --chart-1: #6366f1;
-  --chart-2: #10b981;
-  --chart-3: #f59e0b;
-  --chart-4: #ec4899;
-  --chart-5: #3b82f6;
+  --brand-muted: #eaf1ff;
+  --brand-border: #c6d8ff;
+  --surface: #f6f6f7;
+  --success: #247b50;
+  --warning: #a15c07;
+  --danger: #c4242a;
   --radius: 0.625rem;
-  --sidebar: #FCFCFC;
-  --sidebar-foreground: #262626;
-  --sidebar-primary: #262626;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #f5f5f5;
-  --sidebar-accent-foreground: #262626;
-  --sidebar-border: #e5e5e5;
-  --sidebar-ring: #d4d4d4;
+  --sidebar: #f6f6f7;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(0 0 0 / 0.06);
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e8e8ea;
+  --sidebar-ring: #1f6bff;
+
+  /* Floating layers (menus, palette, tooltips, toasts). */
+  --float-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.16), 0 2px 6px rgb(0 0 0 / 0.05);
+
+  /* Charts. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --div-pos: #2a78d6;
+  --div-neg: #e34948;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --chart-grid: #efeff1;
+  --chart-axis: #8e8e96;
+
+  /* Motion. Strong ease-out for anything entering; the iOS sheet curve for drawers. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-body {
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
-  letter-spacing: -0.31px;
-}
+.dark {
+  color-scheme: dark;
+  --background: #0f0f10;
+  --foreground: #ededef;
+  --subtle: #a9a9b0;
+  --card: #161617;
+  --card-foreground: #ededef;
+  --popover: #1b1b1d;
+  --popover-foreground: #ededef;
+  --primary: #ededef;
+  --primary-foreground: #18181b;
+  --secondary: #1f1f21;
+  --secondary-foreground: #ededef;
+  --muted: #1b1b1d;
+  --muted-foreground: #8e8e96;
+  --accent: #222224;
+  --accent-foreground: #ededef;
+  --destructive: #f87171;
+  --destructive-foreground: #18181b;
+  --border: #262628;
+  --input: #333336;
+  --ring: #3b7bff;
+  --brand: #3b7bff;
+  --brand-hover: #5a8fff;
+  --brand-foreground: #ffffff;
+  --brand-muted: #172235;
+  --brand-border: #24375a;
+  --surface: #0b0b0c;
+  --success: #4cc283;
+  --warning: #f0b450;
+  --danger: #f87171;
+  --sidebar: #0b0b0c;
+  --sidebar-foreground: #ededef;
+  --sidebar-primary: #ededef;
+  --sidebar-primary-foreground: #18181b;
+  --sidebar-accent: rgb(255 255 255 / 0.08);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1f1f21;
+  --sidebar-ring: #3b7bff;
 
-/* Custom scrollbar, matched to the light surface palette. */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #a3a3a3;
+  --float-shadow: 0 16px 40px -8px rgb(0 0 0 / 0.7);
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --div-pos: #3987e5;
+  --div-neg: #e66767;
+  --chart-grid: #222224;
+  --chart-axis: #75757d;
 }
 
 @theme inline {
@@ -84,18 +138,22 @@ body {
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
   --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
   --color-brand-border: var(--brand-border);
   --color-surface: var(--surface);
+  --color-subtle: var(--subtle);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-status-good: var(--status-good);
+  --color-status-warning: var(--status-warning);
+  --color-status-serious: var(--status-serious);
+  --color-status-critical: var(--status-critical);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -121,50 +179,84 @@ body {
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --shadow-float: var(--float-shadow);
+  --ease-out-strong: var(--ease-out);
+  --ease-drawer: var(--ease-drawer);
 }
-
-/* Removed .dark block */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
   }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--brand) 22%, transparent);
+  }
 }
+
+/* Thin scrollbars that sit on either surface. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted-foreground) 35%, transparent) transparent;
+}
+
 @layer utilities {
   /* Shared surface for every panel in the product, so cards on the landing
      page, auth screens and dashboard read as one system. */
   .panel {
-    @apply rounded-xl border border-neutral-200 bg-white shadow-sm;
+    @apply rounded-[10px] border border-border bg-card;
   }
 
   /* Faint grid used behind hero and auth artwork. */
   .grid-backdrop {
     background-image:
-      linear-gradient(to right, rgb(0 0 0 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(0 0 0 / 0.04) 1px, transparent 1px);
+      linear-gradient(to right, color-mix(in srgb, var(--foreground) 4%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 4%, transparent) 1px, transparent 1px);
     background-size: 3rem 3rem;
+  }
+
+  /* Press feedback: felt, not seen. */
+  .press {
+    transition-property: transform, background-color, border-color, color, opacity, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease-out);
+  }
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
   }
 }
 
-/*
-  Respect reduced-motion for our own UI, but leave chart internals alone:
-  Recharts animates series by transitioning stroke-dasharray, so forcing the
-  duration to ~0 leaves the paths stuck in their initial hidden state and the
-  charts render as bare axes. Chart entrance animation is disabled in the
-  components themselves instead.
-*/
+/* Autonomous loops on the landing page. Reduced motion stops them outright -
+   they are decorative, so the reduced variant is "none", not "slower". */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes shimmer-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  *:not(.recharts-wrapper *),
-  *:not(.recharts-wrapper *)::before,
-  *:not(.recharts-wrapper *)::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .motion-loop {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }

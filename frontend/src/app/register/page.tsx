@@ -123,9 +123,9 @@ export default function RegisterPage() {
           Create account
         </SubmitButton>
 
-        <p className="text-center text-sm text-neutral-500">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-700">
+          <Link href="/login" className="font-medium text-brand hover:text-brand">
             Sign in
           </Link>
         </p>

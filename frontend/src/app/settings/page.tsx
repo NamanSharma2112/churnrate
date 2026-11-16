@@ -11,8 +11,8 @@ import { useAuthStore } from "@/store/auth";
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-sm font-medium text-neutral-700">{label}</p>
-      <p className="mt-1.5 rounded-lg border border-neutral-200 bg-[#FCFCFC] px-3 py-2 text-sm text-neutral-900">
+      <p className="text-sm font-medium text-subtle">{label}</p>
+      <p className="mt-1.5 rounded-lg border border-border bg-[#FCFCFC] px-3 py-2 text-sm text-foreground">
         {value || "—"}
       </p>
     </div>
@@ -37,7 +37,7 @@ export default function SettingsPage() {
 
       <div className="panel max-w-4xl p-4 sm:p-6">
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="mb-8 grid w-full grid-cols-3 bg-neutral-100/70 p-1">
+          <TabsList className="mb-8 grid w-full grid-cols-3 bg-accent/70 p-1">
             <TabsTrigger value="profile" className="flex items-center justify-center gap-2">
               <User02Icon size={16} />
               <span className="hidden sm:inline">Profile</span>
@@ -54,8 +54,8 @@ export default function SettingsPage() {
 
           <TabsContent value="profile" className="space-y-6">
             <div>
-              <h3 className="text-base font-medium text-neutral-900">Personal information</h3>
-              <p className="text-sm text-neutral-500">
+              <h3 className="text-base font-medium text-foreground">Personal information</h3>
+              <p className="text-sm text-muted-foreground">
                 Signed in as the account below.
               </p>
             </div>
@@ -69,8 +69,8 @@ export default function SettingsPage() {
 
           <TabsContent value="workspace" className="space-y-6">
             <div>
-              <h3 className="text-base font-medium text-neutral-900">Workspace</h3>
-              <p className="text-sm text-neutral-500">
+              <h3 className="text-base font-medium text-foreground">Workspace</h3>
+              <p className="text-sm text-muted-foreground">
                 All customer data is scoped to this workspace.
               </p>
             </div>
@@ -87,27 +87,27 @@ export default function SettingsPage() {
 
           <TabsContent value="data" className="space-y-6">
             <div>
-              <h3 className="text-base font-medium text-neutral-900">Data sources</h3>
-              <p className="text-sm text-neutral-500">
+              <h3 className="text-base font-medium text-foreground">Data sources</h3>
+              <p className="text-sm text-muted-foreground">
                 Where your customer records come from.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <Link
                 href="/import"
-                className="rounded-lg border border-neutral-200 p-4 transition-colors hover:border-indigo-300 hover:bg-indigo-50/40"
+                className="rounded-lg border border-border p-4 transition-colors hover:border-brand-border hover:bg-brand-muted/40"
               >
-                <p className="text-sm font-medium text-neutral-900">CSV import</p>
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="text-sm font-medium text-foreground">CSV import</p>
+                <p className="mt-1 text-xs text-muted-foreground">
                   Upload any export — columns are mapped automatically.
                 </p>
               </Link>
               <Link
                 href="/integrations"
-                className="rounded-lg border border-neutral-200 p-4 transition-colors hover:border-indigo-300 hover:bg-indigo-50/40"
+                className="rounded-lg border border-border p-4 transition-colors hover:border-brand-border hover:bg-brand-muted/40"
               >
-                <p className="text-sm font-medium text-neutral-900">Stripe</p>
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="text-sm font-medium text-foreground">Stripe</p>
+                <p className="mt-1 text-xs text-muted-foreground">
                   Sync subscriptions, MRR and billing events.
                 </p>
               </Link>
